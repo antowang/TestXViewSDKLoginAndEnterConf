@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <!-- SlidingLayer -->
+    <declare-styleable name="SlidingLayer_xviewsdk">
+        <attr name="shadow_drawable" format="boolean" />
+        <attr name="shadow_width" format="dimension" />
+        <attr name="close_on_tapEnabled" format="boolean" />
+        <attr name="stickTo" format="enum">
+            <enum name="auto" value="0" />
+            <enum name="right" value="-1" />
+            <enum name="left" value="-2" />
+            <enum name="middle" value="-3" />
+        </attr>
+    </declare-styleable>
+     <declare-styleable name="CircleImageView_xviewsdk">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_fill_color" format="color" />
+    </declare-styleable>
+</resources>

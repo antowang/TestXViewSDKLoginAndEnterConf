@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AS_XViewSDKNoR.iml" filepath="$PROJECT_DIR$/AS_XViewSDKNoR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../AS_XView_Iphone_new/AS_XView_Iphone_new.iml" filepath="$PROJECT_DIR$/../AS_XView_Iphone_new/AS_XView_Iphone_new.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Demo.iml" filepath="$PROJECT_DIR$/../Demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../TestXViewSDK/TestXViewSDK.iml" filepath="$PROJECT_DIR$/../TestXViewSDK/TestXViewSDK.iml" />
+    </modules>
+  </component>
+</project>

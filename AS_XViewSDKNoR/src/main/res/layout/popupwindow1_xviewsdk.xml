@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/rounded_corners_bg_xviewsdk"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_vertical|center"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp" >
+
+            <TextView
+                android:id="@+id/group_menu1_passfile_xviewsdk"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/rounded2_corners_bg_xviewsdk"
+                android:gravity="center"
+                android:text="@string/media_setting_xviewsdk"
+                android:textColor="#ffffff"
+                android:textSize="13sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:background="#1d93c3" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/localVideoRelativeLayout_xviewsdk"
+            android:layout_width="0dp"
+            android:layout_height="0dp" >
+
+            <TextView
+                android:id="@+id/group_menu1_playgame_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|left"
+                android:text="@string/local_video_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop1_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical|right"
+                android:text="@string/enable_setting_xviewsdk"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/videoCodeRelativeLayout_xviewsdk"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/actionsheet_bottom_selector_xviewsdk"
+            android:clickable="true"
+            android:focusable="true"
+            android:nextFocusDown="@+id/videoFrameRateRelativeLayout_xviewsdk"
+            android:nextFocusUp="@+id/videoFlowRelativeLayout_xviewsdk" >
+
+            <TextView
+                android:id="@+id/group_menu1_removefriend_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/video_coding_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop2_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|right"
+                android:text="@string/high_setting_xviewsdk"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/videoFrameRateRelativeLayout_xviewsdk"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/actionsheet_bottom_selector_xviewsdk"
+            android:clickable="true"
+            android:focusable="true"
+            android:nextFocusDown="@+id/videoFlowRelativeLayout_xviewsdk"
+            android:nextFocusUp="@+id/videoCodeRelativeLayout_xviewsdk" >
+
+            <TextView
+                android:id="@+id/group_menu1_setremark_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/video_frame_rate_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop3_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|right"
+                android:text="10 >"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/videoFlowRelativeLayout_xviewsdk"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/actionsheet_bottom_selector_xviewsdk"
+            android:clickable="true"
+            android:focusable="true"
+            android:nextFocusDown="@+id/videoCodeRelativeLayout_xviewsdk"
+            android:nextFocusUp="@+id/videoFrameRateRelativeLayout_xviewsdk" >
+
+            <TextView
+                android:id="@+id/group_menu1_brokemate_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/video_flow_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop4_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|right"
+                android:text="512Kbps >"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/networkRelativeLayout_xviewsdk"
+            android:layout_width="0dp"
+            android:layout_height="0dp" >
+
+            <TextView
+                android:id="@+id/tvNetworkSetting2_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|left"
+                android:text="@string/setting_server_text_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop9_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical|right"
+                android:text=">"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/voiceFlowRelativeLayout_xviewsdk"
+            android:layout_width="0dp"
+            android:layout_height="0dp" >
+
+            <TextView
+                android:id="@+id/group_menu1_asd_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|left"
+                android:text="@string/voice_flow_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvPop5_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical|right"
+                android:text="10Kbps"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:id="@+id/rlLockConf_xviewsdk"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp" >
+
+            <TextView
+                android:id="@+id/tvLockConf_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|left"
+                android:text="@string/lock_conf_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvLockConfItem_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical|right"
+                android:text="@string/unlock_xviewsdk"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp" >
+
+            <TextView
+                android:id="@+id/group_menu1_asd_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|left"
+                android:text="@string/view2_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvScreenMode_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical|right"
+                android:text="@string/gallery_xviewsdk"
+                android:textColor="#8e8e8e"
+                android:textSize="13sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

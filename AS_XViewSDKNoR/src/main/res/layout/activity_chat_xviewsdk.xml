@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/svChatLayout_xviewsdk"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ecedf1"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="#12b7f5" >
+
+            <ImageView
+                android:id="@+id/ivBackChat_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="true"
+                android:src="@drawable/login_back_xviewsdk" />
+
+            <TextView
+                android:id="@+id/tvChatRootTitle_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/chat_xviewsdk"
+                android:textColor="#ffffff" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/lvChat_xviewsdk"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#ecedf1"
+            android:cacheColorHint="#00000000"
+            android:divider="@null"
+            android:dividerHeight="3dp"
+            android:listSelector="#00000000"
+            android:scrollbarStyle="outsideOverlay"
+            android:transcriptMode="alwaysScroll" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:id="@+id/etContent_xviewsdk"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/shape_et_chat_xviewsdk"
+                android:cursorVisible="true"
+                android:inputType="textMultiLine"
+                android:padding="5dp"
+                android:textColor="#000"
+                android:textCursorDrawable="@null" />
+
+            <requestFocus />
+
+            <Button
+                android:id="@+id/btnSendMsg_xviewsdk"
+                android:layout_width="55dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="6dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/selector_chatnosend_btn_xviewsdk"
+                android:text="@string/send_xviewsdk"
+                android:textColor="#fff"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

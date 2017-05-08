@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/itemback_selector_xviewsdk"
+    android:descendantFocusability="blocksDescendants"
+    android:nextFocusLeft="@null"
+    android:nextFocusRight="@null"
+    android:padding="10dp" >
+
+    <ImageView
+        android:id="@+id/ivUserListIcon2_xviewsdk"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/userlist_icon1_xviewsdk" />
+
+    <TextView
+        android:id="@+id/item_tv_medianame2_xviewsdk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@id/ivUserListIcon2_xviewsdk"
+        android:singleLine="true"
+        android:textColor="#a9a6a6"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/item_iv_zhixiang2_xviewsdk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/indicat_selector_xviewsdk"
+        android:contentDescription="@string/account_xviewsdk"
+        android:padding="10dp" />
+
+    <ImageView
+        android:id="@+id/iv_has_audio2_xviewsdk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20dp"
+        android:layout_toLeftOf="@id/item_iv_zhixiang2_xviewsdk"
+        android:contentDescription="@string/account_xviewsdk"
+        android:src="@drawable/mic_userlist_xviewsdk"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/iv_has_video2_xviewsdk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
+        android:layout_toLeftOf="@id/iv_has_audio2_xviewsdk"
+        android:contentDescription="@string/account_xviewsdk"
+        android:padding="10dp"
+        android:visibility="invisible" />
+
+</RelativeLayout>

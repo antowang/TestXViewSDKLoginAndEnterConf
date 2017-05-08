@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:padding="10dp" >
+
+    <RelativeLayout
+        android:id="@+id/rlChatTime_xviewsdk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/tvChatTime_xviewsdk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="false"
+            android:padding="5dp"
+            android:text="00:00" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/llLeftChatLayout_xviewsdk"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rlChatTime_xviewsdk"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <com.cinlan.xview.widget.CircleImageView
+            android:id="@+id/icon_in_xviewsdk"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top"
+            android:src="@drawable/user_icon_left_xviewsdk" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1" >
+
+            <TextView
+                android:id="@+id/tvUserName_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/text_in_xviewsdk"
+                android:layout_alignParentLeft="true"
+                android:text="Marry"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/text_in_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvUserName_xviewsdk"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/shape_chat_tv_bg_xviewsdk"
+                android:textColor="#000"
+                android:textSize="14sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llRightChatLayout_xviewsdk"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/rlChatTime_xviewsdk"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1" >
+
+            <TextView
+                android:id="@+id/tvLocalUserName_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/text_out_xviewsdk"
+                android:text="Lisa"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/text_out_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvLocalUserName_xviewsdk"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/shape_chat_tv_bg2_xviewsdk"
+                android:textColor="#000"
+                android:textSize="14sp" />
+        </RelativeLayout>
+
+        <com.cinlan.xview.widget.CircleImageView
+            android:id="@+id/icon_out_xviewsdk"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/user_icon_right_xviewsdk" />
+    </LinearLayout>
+
+</RelativeLayout>

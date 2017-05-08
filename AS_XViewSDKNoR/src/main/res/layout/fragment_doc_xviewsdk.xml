@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f0f0"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/lin_doc_content_xviewsdk"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#149dd3" >
+
+            <ImageView
+                android:id="@+id/ivBackFD_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                android:src="@drawable/login_back2_xviewsdk" />
+
+            <TextView
+                android:id="@+id/tv_doc_name_xviewsdk"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/userlist_xviewsdk"
+                android:textColor="@color/white_xviewsdk"
+                android:textSize="20sp" />
+        </RelativeLayout>
+
+        <com.cinlan.xview.widget.photoview.PhotoView
+            android:id="@+id/iv_doc_display_xviewsdk"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:padding="10dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/rounded_corners_bg_xviewsdk"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_vertical|center"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/group_menu1_passfile_xviewsdk"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/rounded2_corners_bg_xviewsdk"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center"
+                android:text="@string/video_flow_xviewsdk"
+                android:textColor="#ffffff"
+                android:textSize="13sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:background="#1d93c3" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvOneNineTwo_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="128Kbps"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbOneNineTwo_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbTwoFiveSix_xviewsdk"
+                android:nextFocusUp="@+id/cbThreeEightFour_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvTwoFiveSix_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="256Kbps"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbTwoFiveSix_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbThreeEightFour_xviewsdk"
+                android:nextFocusUp="@+id/cbOneNineTwo_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvThreeEightFour_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="512Kbps"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbThreeEightFour_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbFourLevelVideoFlow_xviewsdk"
+                android:nextFocusUp="@+id/cbTwoFiveSix_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvFourLevelVideoFlow_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="1024Kbps"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbFourLevelVideoFlow_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbOneNineTwo_xviewsdk"
+                android:nextFocusUp="@+id/cbThreeEightFour_xviewsdk" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="90dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" >
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

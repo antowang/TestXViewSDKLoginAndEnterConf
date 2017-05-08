@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="alertdialog_line_xviewsdk">#c6c6c6</color>
+    <color name="actionsheet_blue_xviewsdk">#037BFF</color>
+    <color name="white_xviewsdk">#FFF</color>
+    <color name="black_xviewsdk">#000</color>
+    <color name="red_xviewsdk">#f00</color>
+    <color name="gray_font_xviewsdk">#818181</color>
+    <color name="white_pull_xviewsdk">#FFFFFF</color>
+    <color name="black_pull_xviewsdk">#000000</color>
+    <color name="gray_pull_xviewsdk">#aaaaaa</color>
+    <color name="light_origin_pull_xviewsdk">#ff7e09</color>
+    <!-- splash 页面 -->
+    <color name="login_normal_xviewsdk">#1a6197</color>
+    <color name="enter_conf_normal_xviewsdk">#257ad7</color>
+    <color name="enter_conf_press_xviewsdk">#0e7767</color>
+    <color name="setting_normal_xviewsdk">#257ad7</color>
+    <color name="setting_press_xviewsdk">#0e7789</color>
+    <!-- 登录页面 -->
+    <color name="login_top_back_xviewsdk">#f9f9f9</color>
+    <color name="login_back_xviewsdk">#edeef2</color>
+    <color name="item_back_press_xviewsdk">#a0a0a0</color>
+
+</resources>

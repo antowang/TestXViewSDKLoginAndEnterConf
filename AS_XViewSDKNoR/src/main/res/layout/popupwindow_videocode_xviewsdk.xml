@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/rounded_corners_bg_xviewsdk"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_vertical|center"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/group_menu1_passfile_xviewsdk"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/rounded2_corners_bg_xviewsdk"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center"
+                android:text="@string/video_coding_xviewsdk"
+                android:textColor="#ffffff"
+                android:textSize="13sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:background="#1d93c3"
+                android:clickable="false"
+                android:focusable="false" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvSuperHigh_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/superhigh_setting_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbSuperHigh_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbHigh_xviewsdk"
+                android:nextFocusUp="@+id/cbLow_xviewsdk" />
+        </RelativeLayout>
+
+       <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvHigh_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/allhigh_setting_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbHigh_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbMid_xviewsdk"
+                android:nextFocusUp="@+id/cbSuperHigh_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvMid_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/high_setting_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbMid_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbLow_xviewsdk"
+                android:nextFocusUp="@+id/cbHigh_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false" >
+
+            <TextView
+                android:id="@+id/tvLow_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical|left"
+                android:text="@string/standard_setting_xviewsdk"
+                android:textColor="#454545"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/cbLow_xviewsdk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusDown="@+id/cbHigh_xviewsdk"
+                android:nextFocusUp="@+id/cbMid_xviewsdk" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="90dp"
+            android:background="#f0f0f0"
+            android:clickable="false"
+            android:focusable="false" >
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

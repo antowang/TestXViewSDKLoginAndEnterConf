@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/login_back_xviewsdk"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/userviee_top_xviewsdk"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:background="#1d93c3"
+        android:clickable="false"
+        android:focusable="false" >
+
+        <ImageView
+            android:id="@+id/view_confdatalist_back_xviewsdk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:nextFocusDown="@+id/lv_conf_datalist_xviewsdk"
+            android:nextFocusUp="@+id/lv_conf_datalist_xviewsdk"
+            android:padding="10dp"
+            android:src="@drawable/login_back_xviewsdk" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="@string/file_cabinet_xviewsdk"
+            android:textColor="#ffffff" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/userlist_oper_xviewsdk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/login_top_back_xviewsdk"
+        android:clickable="false"
+        android:focusable="false"
+        android:gravity="center"
+        android:padding="10dp"
+        android:visibility="gone" >
+
+        <Button
+            android:id="@+id/view_bt_video_collect_xviewsdk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_selector_xviewsdk"
+            android:clickable="false"
+            android:focusable="false"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="5dp"
+            android:text="@string/video_ide_xviewsdk"
+            android:textColor="@color/white_xviewsdk"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lv_conf_datalist_xviewsdk"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/userlist_oper_xviewsdk"
+        android:layout_below="@id/userviee_top_xviewsdk"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:divider="#f0f0f0"
+        android:dividerHeight="5dp"
+        android:fastScrollEnabled="true"
+        android:focusable="true"
+        android:listSelector="@null"
+        android:nextFocusDown="@id/view_confdatalist_back_xviewsdk"
+        android:nextFocusUp="@id/view_confdatalist_back_xviewsdk" >
+    </ListView>
+
+</RelativeLayout>
