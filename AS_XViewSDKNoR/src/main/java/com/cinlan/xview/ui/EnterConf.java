@@ -18,13 +18,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.XunLiu.jni.NativeInitializer;
 import com.cinlan.core.CaptureCapability;
@@ -47,8 +44,8 @@ import com.cinlan.xview.receiver.ForceOfflineReceiver;
 import com.cinlan.xview.service.JNIResponse;
 import com.cinlan.xview.service.JNIService;
 import com.cinlan.xview.service.LoginService;
-import com.cinlan.xview.service.Registrant;
-import com.cinlan.xview.service.RequestLogInResponse;
+import com.cinlan.xview.service.WeakRefHandler;
+import com.cinlan.xview.service.RequestLoginResponse;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.SPUtil;
 import com.cinlan.xview.utils.Utils;
@@ -56,15 +53,21 @@ import com.cinlan.xview.utils.XmlParserUtils;
 import com.cinlan.xview.utils.XviewLog;
 
 public class EnterConf {
+	private static String TAG = EnterConf.class.getSimpleName();
 
-	private static String XTAG = "EnterConf";
 	private static final int LOG_IN_CALL_BACK = 10;
 
-	// 昵称
+	/**
+	 * 参会者昵称
+ 	 */
 	private String nickName;
-	// 会议id
+	/**
+	 * 会议id
+	 */
 	private long confId;
-	// 会议密码
+	/**
+	 * 会议密码
+	 */
 	private String confPwd;
 	// 第三方传来的id
 	private String mUserData = "";
@@ -88,7 +91,7 @@ public class EnterConf {
 
 	// 是否正在用户登录
 	private Boolean isLogining = false;
-	private static Context mContext;
+	private  Context mContext;
 	private VideoCaptureDevInfo devInfo;
 	private List<VideoCaptureDevice> deviceList;
 	/**
@@ -116,53 +119,70 @@ public class EnterConf {
 			switch (msg.what) {
 				case LOG_IN_CALL_BACK:
 					isLogining = false;
-					XviewLog.i(XTAG, "" + Thread.currentThread().getId() + ", " + Thread.currentThread().getName());
-					JNIResponse rlr = (JNIResponse) msg.obj;
+					XviewLog.i(TAG, "" + Thread.currentThread().getId() + ", " + Thread.currentThread().getName());
+
+					JNIResponse response = (JNIResponse) msg.obj;
 					/**
 					 * 登录反馈
 					 */
-					if (rlr.getResult() == JNIResponse.Result.TIME_OUT) {
+					if (response.getResult() == JNIResponse.Result.TIME_OUT) {
 						mIOnXViewCallback.onLoginResultListener(1);
-						XviewLog.i(XTAG, " login TIME_OUT");
+						XviewLog.i(TAG, " login TIME_OUT");
 						ImRequest.getInstance().logout();
-					} else if (rlr.getResult() == JNIResponse.Result.FAILED) {
+					} else if (response.getResult() == JNIResponse.Result.FAILED) {
 						mIOnXViewCallback.onLoginResultListener(2);
-						XviewLog.i(XTAG, " login FAILED");
+						XviewLog.i(TAG, " login FAILED");
 						ImRequest.getInstance().logout();
-					} else if (rlr.getResult() == JNIResponse.Result.CONNECT_ERROR) {
+					} else if (response.getResult() == JNIResponse.Result.CONNECT_ERROR) {
 						mIOnXViewCallback.onLoginResultListener(3);
-						XviewLog.i(XTAG, " login CONNECT_ERROR");
+						XviewLog.i(TAG, " login CONNECT_ERROR");
 						ImRequest.getInstance().logout();
-					} else if (rlr.getResult() == JNIResponse.Result.SERVER_REJECT) {
+					} else if (response.getResult() == JNIResponse.Result.SERVER_REJECT) {
 						mIOnXViewCallback.onLoginResultListener(4);
-						XviewLog.i(XTAG, " login SERVER_REJECT");
+						XviewLog.i(TAG, " login SERVER_REJECT");
 						ImRequest.getInstance().logout();
-					} else if (rlr.getResult() == JNIResponse.Result.INCORRECT_PAR) {
+					} else if (response.getResult() == JNIResponse.Result.INCORRECT_PAR) {
 						mIOnXViewCallback.onLoginResultListener(10);
-						XviewLog.i(XTAG, " login INCORRECT_PAR");
+						XviewLog.i(TAG, " login INCORRECT_PAR");
 						ImRequest.getInstance().logout();
-					} else if (rlr.getResult() == JNIResponse.Result.UNKNOWN) {
+					} else if (response.getResult() == JNIResponse.Result.UNKNOWN) {
 						mIOnXViewCallback.onLoginResultListener(11);
-						XviewLog.i(XTAG, " login UNKNOWN");
+						XviewLog.i(TAG, " login UNKNOWN");
 						ImRequest.getInstance().logout();
 					} else {
-						XviewLog.i(XTAG, " login sucess");
-						User user = ((RequestLogInResponse) rlr).getUser();
-						user.setNickName(nickName);
-						GlobalHolder.getInstance().setCurrentUser(user);
-						PublicInfo.isAnonymousLogin = true;
+						XviewLog.i(TAG, " login sucess");
 
+
+						User user = ((RequestLoginResponse) response).getUser();
+						user.setNickName(nickName);
+
+                        //TODO:这里不知道是为了做什么?
+						GlobalHolder.getInstance().setCurrentUser(user);
+
+
+                        //TODO:下面的代码要重构
+						PublicInfo.isAnonymousLogin = true;
 						if (PublicInfo.isAnonymousLogin) {
 							PublicInfo.confListRefreshHandler = confListHandler;
 							initReceiver();
-							thread = new ThreadConfList();
-							new Thread(thread).start();
+
+                            //TODO:下面的代码是干什么的?,目测没有用,可以删除
+                            Conf conf = new Conf();
+                            conf.setId(confId);
+
+
+                            //TODO:下面的操作是多余的
+                            confListHandler.sendEmptyMessage(PublicInfo.FLAG_ANONYMOUS_LOGIN);
 						}
 					}
+
+					//TODO:多余
 					isLogining = false;
+
+
 					break;
 				case PublicInfo.FLAG_ANONYMOUS_LOGIN:
-					XviewLog.i(XTAG, " enter Conf");
+					XviewLog.i(TAG, "Anonymous enter login");
 					ConfRequest.getInstance().enterConf(confId, confPwd);
 					break;
 				case PublicInfo.UNREGIStER_RECEIVER:
@@ -171,11 +191,12 @@ public class EnterConf {
 			}
 		}
 	};
+	private WeakRefHandler weakRefHandler = new WeakRefHandler(confListHandler, LOG_IN_CALL_BACK, null);
 
-	private Registrant caller = new Registrant(confListHandler, LOG_IN_CALL_BACK, null);
 	private static EnterConf mEnterConf = null;
 
-	private EnterConf() {
+	private EnterConf(Context context) {
+        mContext = context;
 		if (PublicInfo.isFirstRunning) {
 			// 用于只初始化一次底层请求
 			initRequest();
@@ -183,19 +204,25 @@ public class EnterConf {
 		}
 	}
 
+
+    /**
+     * @param context
+     * @param iOnXViewCallback
+     * @return
+     */
 	public static EnterConf getInstance(Context context, IXVSDKCallback iOnXViewCallback) {
-		XviewLog.i(XTAG, "sdk version is 3.2.7.5");
+		XviewLog.i(TAG, "sdk version is 3.2.7.7");
         if (iOnXViewCallback == null) {
             throw new NullPointerException("iOnXViewCallback is null");
         }
         if (context == null) {
-            XviewLog.i(XTAG, "context is null");
+            XviewLog.i(TAG, "context is null");
             throw new NullPointerException("context is null");
         }
         mIOnXViewCallback = iOnXViewCallback;
-        mContext = context;
+
 		if (mEnterConf == null) {
-			mEnterConf = new EnterConf();
+			mEnterConf = new EnterConf(context.getApplicationContext());
 		}
 		return mEnterConf;
 	}
@@ -211,15 +238,14 @@ public class EnterConf {
 
 	/**
 	 * 登录接口
-	 * 
 	 */
 	public void loginXView(long confNumber, String confPassword, String name, String userData) {
 		if (confNumber == 0) {
-			XviewLog.i(XTAG, "loginXView confNumber == 0");
+			XviewLog.i(TAG, "loginXView confNumber == 0");
 			throw new NullPointerException("conf id is null.");
 		}
 		if (userData == null) {
-			XviewLog.i(XTAG, "loginXView userData == null");
+			XviewLog.i(TAG, "loginXView userData == null");
 			throw new NullPointerException("userData id is null.");
 		}
 		this.confId = confNumber;
@@ -227,27 +253,30 @@ public class EnterConf {
 		this.nickName = name;
 		this.mUserData = userData;
 
-		XviewLog.i(XTAG, "loginXView confId=" + confNumber);
-		XviewLog.i(XTAG, "loginXView confPwd=" + confPassword);
-		XviewLog.i(XTAG, "loginXView nickName=" + name);
-		XviewLog.i(XTAG, "loginXView userData=" + userData);
-
-
+		XviewLog.i(TAG, "loginXView confId=" + confNumber);
+		XviewLog.i(TAG, "loginXView confPwd=" + confPassword);
+		XviewLog.i(TAG, "loginXView nickName=" + name);
+		XviewLog.i(TAG, "loginXView userData=" + userData);
 
 		devInfo = VideoCaptureDevInfo.CreateVideoCaptureDevInfo();
 
+        //TODO:JNIService这个类有什么功能
         mContext.startService(new Intent(mContext, JNIService.class));
 
+
 		deviceList = devInfo.deviceList;
+
 		if (deviceList.size() == 0) {
 			SPUtil.putConfigIntValue(mContext, "local", 2);
-			XviewLog.i(XTAG, "No camera, in a state if 2.");
+			XviewLog.i(TAG, "No camera, in a state if 2.");
 		}
 		// 计算支持和选择合适的屏幕分辨率.
 		calculateAppSupport();
-		// 选择配置文件目录
+		// 设置配置文件目录
 		String appRootFile = Utils.getAppRootFile();
 		mConfigRequest.setExtStoragePath(appRootFile + "");
+
+
 
 		login();
 	}
@@ -305,7 +334,6 @@ public class EnterConf {
 				sChairPasswd, sParticipantPasswd, nStartTime, nEndTime,
 				nConfType, nMaxParticipant, nParticpantLimited);
 		task.execute(WEB_SERVER_URL, NAMESPACE, "CreateConf");
-
 	}
 
 	/**
@@ -509,7 +537,7 @@ public class EnterConf {
 		SPUtil.putConfigStrValue(mContext, "ip", ip);
 		SPUtil.putConfigStrValue(mContext, "port", "18181");
 
-		XviewLog.i(XTAG," setServer:" + WEB_SERVER_URL);
+		XviewLog.i(TAG," setServer:" + WEB_SERVER_URL);
 	}
 
 	private void login() {
@@ -517,13 +545,13 @@ public class EnterConf {
 		port = SPUtil.getConfigStrValue(mContext, "port");
 
 		if ("".equals(ip) || "".equals(port)) {
-			XviewLog.i(XTAG, " ip or port is null");
+			XviewLog.i(TAG, " ip or port is null");
 			mIOnXViewCallback.onLoginResultListener(6);
 			return;
 		}
 
 		if (!com.cinlan.xview.utils.Utils.checkNetworkState(mContext)) {
-			XviewLog.i(XTAG, " disnetwork");
+			XviewLog.i(TAG, " disnetwork");
 			mIOnXViewCallback.onLoginResultListener(7);
 			return;
 		}
@@ -540,17 +568,16 @@ public class EnterConf {
 	private void loginUP() {
 		// 真正的设置服务器入口
 		mConfigRequest.setServerAddress(ip, Integer.parseInt(port));
+
 		synchronized (isLogining) {
 			if (isLogining) {
-				XviewLog.i(XTAG, " isLogining");
+				XviewLog.i(TAG, " isLogining");
 				return;
 			}
 			isLogining = true;
-			XviewLog.i(XTAG, " login...");
+			XviewLog.i(TAG, " login...");
 			// 真正的登录入口
-
-//			mLoginService.login(nickName, "", caller, 1, mUserData);
-			mLoginService.login(mUserData, "", caller, 1, nickName);
+			mLoginService.login(mUserData, "", weakRefHandler, 1, nickName);
 		}
 	}
 
@@ -575,7 +602,7 @@ public class EnterConf {
 		protected void onPostExecute(String result) {
 			if (result == null) {
 				// dns错误
-				XviewLog.i(XTAG, " DNS parse error");
+				XviewLog.i(TAG, " DNS parse error");
 				mIOnXViewCallback.onLoginResultListener(8);
 				return;
 			}
@@ -600,7 +627,7 @@ public class EnterConf {
 		}
 
 		if (isDns)
-			XviewLog.i(XTAG, " DNS = " + dns);
+			XviewLog.i(TAG, " DNS = " + dns);
 
 		return isDns;
 	}
@@ -778,8 +805,10 @@ public class EnterConf {
 				EnterConfType entertype = (EnterConfType) obj;
 				int getnJoinResult = entertype.getnJoinResult();
 				long confid = entertype.getnConfID();
-				XviewLog.i(XTAG, " enter conf result code = " + getnJoinResult);
+				XviewLog.i(TAG, " enter conf result code = " + getnJoinResult);
 				if (getnJoinResult == 0) {
+
+
 					EnterConfType conftype = (EnterConfType) obj;
 					String szConfData = conftype.getSzConfData();
 					ByteArrayInputStream is = new ByteArrayInputStream(
@@ -788,15 +817,19 @@ public class EnterConf {
 							.parserOnEnterConf(is);
 					mIOnXViewCallback.onEnterConfListener(2);
 					GlobalHolder.getInstance().addSelf();
-					GlobalHolder.getInstance()
-							.setmCurrentConf(new Conf(confid));
+					GlobalHolder.getInstance().setmCurrentConf(new Conf(confid));
+
 					Intent confintent = new Intent(context, ConfActivity.class);
 					confintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					confintent.putExtra("conf", parserOnEnterConf);
 					mContext.startActivity(confintent);
+
+
 				} else {
+
+
 					mIOnXViewCallback.onEnterConfListener(3); // 206?
-					XviewLog.i(XTAG, " enter conf result code = " + getnJoinResult);
+					XviewLog.i(TAG, " enter conf result code = " + getnJoinResult);
 					if (PublicInfo.isAnonymousLogin) {
 						PublicInfo.AnonymousLoginState = 1;
 					}
@@ -821,16 +854,16 @@ public class EnterConf {
 	}
 
 	private void initRequest() {
-		XviewLog.i(XTAG, " initRequest");
+		XviewLog.i(TAG, " initRequest");
 		try {
 			System.loadLibrary("audiocore");
 			System.loadLibrary("VideoCore");
 			System.loadLibrary("Client");
-			XviewLog.i(XTAG + " load library secuss");
+			XviewLog.i(TAG + " load library secuss");
 		} catch (UnsatisfiedLinkError ule) {
 			mIOnXViewCallback.onLoginResultListener(9);
 			System.out.println("WARNING: Could not load library!");
-			XviewLog.i(XTAG, " load library fail");
+			XviewLog.i(TAG, " load library fail");
 		}
 
 		NativeInitializer.getIntance(mContext).initialize(mContext);
@@ -846,61 +879,61 @@ public class EnterConf {
 		TestVideoRequest();
 		TestWBRequest();
 		TestAudioRequest();
-		XviewLog.i(XTAG, " initRequest sucess");
+		XviewLog.i(TAG, " initRequest sucess");
 	}
 
 	private void TestChatRequest() {
-		XviewLog.i(XTAG, " TestChatRequest=====start");
+		XviewLog.i(TAG, " TestChatRequest=====start");
 		if (!chat.initialize(chat)) {
-			XviewLog.i(XTAG, " TestChatRequest=====exception");
+			XviewLog.i(TAG, " TestChatRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestChatRequest=====end");
+		XviewLog.i(TAG, " TestChatRequest=====end");
 	}
 
 	private void TestAudioRequest() {
-		XviewLog.i(XTAG, " TestAudioRequest=====start");
+		XviewLog.i(TAG, " TestAudioRequest=====start");
 		if (!audio.initialize(audio)) {
-			XviewLog.i(XTAG, " TestAudioRequest=====exception");
+			XviewLog.i(TAG, " TestAudioRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestAudioRequest=====end");
+		XviewLog.i(TAG, " TestAudioRequest=====end");
 	}
 
 	private void TestVideoRequest() {
-		XviewLog.i(XTAG, " TestVideoRequest=====start");
+		XviewLog.i(TAG, " TestVideoRequest=====start");
 		if (!video.initialize(video)) {
-			XviewLog.i(XTAG, " TestVideoRequest=====exception");
+			XviewLog.i(TAG, " TestVideoRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestVideoRequest=====end");
+		XviewLog.i(TAG, " TestVideoRequest=====end");
 	}
 
 	private void TestWBRequest() {
-		XviewLog.i(XTAG, " TestWBRequest=====start");
+		XviewLog.i(TAG, " TestWBRequest=====start");
 		if (!wb.initialize(wb)) {
-			XviewLog.i(XTAG, " TestWBRequest=====exception");
+			XviewLog.i(TAG, " TestWBRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestWBRequest=====end");
+		XviewLog.i(TAG, " TestWBRequest=====end");
 	}
 
 	private void TestImRequest() {
-		XviewLog.i(XTAG, " TestImRequest=====start");
+		XviewLog.i(TAG, " TestImRequest=====start");
 		if (!im.initialize(im)) {
-			XviewLog.i(XTAG, " TestImRequest=====exception");
+			XviewLog.i(TAG, " TestImRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestImRequest=====end");
+		XviewLog.i(TAG, " TestImRequest=====end");
 	}
 
 	private void TestConfRequest() {
-		XviewLog.i(XTAG, " TestConfRequest=====start");
+		XviewLog.i(TAG, " TestConfRequest=====start");
 		if (!conf.initialize(conf)) {
-			XviewLog.i(XTAG, " TestConfRequest=====exception");
+			XviewLog.i(TAG, " TestConfRequest=====exception");
 			return;
 		}
-		XviewLog.i(XTAG, " TestConfRequest=====end");
+		XviewLog.i(TAG, " TestConfRequest=====end");
 	}
 
 	private class ThreadConfList implements Runnable {
@@ -913,11 +946,7 @@ public class EnterConf {
 				e.printStackTrace();
 			}
 
-			Conf conf = new Conf();
-			conf.setId(confId);
-			if (conf != null)
-				confListHandler
-						.sendEmptyMessage(PublicInfo.FLAG_ANONYMOUS_LOGIN);
+
 		}
 	}
 
