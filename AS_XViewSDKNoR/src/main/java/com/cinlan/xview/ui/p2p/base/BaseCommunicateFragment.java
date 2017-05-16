@@ -224,6 +224,13 @@ public abstract class BaseCommunicateFragment extends Fragment {
      * @param surfaceView surfaceView
      */
     private void setSurfaceViewFullScreen(SurfaceView surfaceView) {
+
+        FrameLayout.LayoutParams params =
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        surfaceView.setLayoutParams(params);
+
+        surfaceView.setZOrderMediaOverlay(true);
+
         mRootView.addView(surfaceView);
         setClickListener(surfaceView);
         mCurrentFullScreenView = surfaceView;
@@ -278,8 +285,11 @@ public abstract class BaseCommunicateFragment extends Fragment {
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mScreenSize.x / 3, mScreenSize.y / 3);
         surfaceView.setLayoutParams(params);
+
         surfaceView.setZOrderOnTop(true);
+        surfaceView.setZOrderMediaOverlay(true);
         mRootView.addView(surfaceView);
+
         surfaceView.setTranslationX(transationX);
         surfaceView.setTranslationY(transationY);
         setClickListener(surfaceView);
