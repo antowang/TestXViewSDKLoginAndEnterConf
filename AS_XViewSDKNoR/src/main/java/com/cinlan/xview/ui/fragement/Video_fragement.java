@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -39,11 +38,10 @@ import com.cinlan.xview.bean.UserDevice;
 import com.cinlan.xview.bean.VideoDevice;
 import com.cinlan.xview.msg.MediaEntity;
 import com.cinlan.xview.msg.MsgType;
-import com.cinlan.xview.ui.ConfActivity.VideoOpenListener;
+import com.cinlan.xview.ui.callback.VideoOpenListener;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.SPUtil;
 import com.cinlan.xview.utils.VideoHelper;
-import com.cinlan.xview.utils.XviewLog;
 import com.cinlan.xview.widget.ColumnLayout;
 import com.cinlan.xview.widget.ColumnLayout.setonSizeChangeListener;
 import com.cinlankeji.khb.iphone.R;
@@ -52,9 +50,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		setonSizeChangeListener, OnTouchListener {
 
 	/**
-	 * 用户设备视频和视频流的集合
+	 * 显示视频画面的SurfaceView
 	 */
-	private ArrayList<SurfaceView> sws = new ArrayList<SurfaceView>();
+	private ArrayList<SurfaceView> mSurfaceViewList = new ArrayList<SurfaceView>();
 	/**
 	 * 中间大布局
 	 */
@@ -78,7 +76,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	/**
 	 * 根据设备智能选取的4个级别的分辨率.
 	 */
-	private List<String> app_support = new ArrayList<String>();
+	private List<String> app_support = new ArrayList<>();
 	/**
 	 * 是否可以切换画中画视频,设置了2秒延迟
 	 */
@@ -165,7 +163,6 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	private void initLocalSupport() {
 		if (deviceList == null || deviceList.size() == 0)
 			return;
-
 		app_support.clear();
 		app_support.add(PublicInfo.Support4Level);
 		app_support.add(PublicInfo.Support3Level);
@@ -178,8 +175,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 */
 	private void openLocal() {
 		// 设备朝向
-		int ori = SPUtil
-				.getConfigIntValue(getActivity(), "viewModePosition", 1);
+		int ori = SPUtil.getConfigIntValue(getActivity(), "viewModePosition", 1);
+
+
 		PublicInfo.DEVICE_ORIENTATION = ori;
 		// 摄像头朝向
 		int camera = SPUtil.getConfigIntValue(activity, "camera", 0);
@@ -191,8 +189,8 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		String default_video_wh = SPUtil.getConfigStrValue(activity, "chicun");
 
 		/* 如果分辨率为null或不为4个分辨率之一就默认为高清 */
-		if (default_video_wh.isEmpty()
-				|| !app_support.contains(default_video_wh)) {
+		if (default_video_wh.isEmpty() || !app_support.contains(default_video_wh)) {
+
 			default_video_wh = PublicInfo.Support2Level;
 		}
 
@@ -210,8 +208,8 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				devInfo.SetDefaultDevName(devInfo.deviceList.get(0).deviceUniqueName);
 				// 设置采集参数
 
-				LocaSurfaceView.VideoConfig config = LocaSurfaceView
-						.getInstance().getVideoConfig();
+				LocaSurfaceView.VideoConfig config = LocaSurfaceView.getInstance().getVideoConfig();
+
 				config.videoWidth = Integer.parseInt(whs[0]);
 				config.videoHeight = Integer.parseInt(whs[1]);
 				config.videoBitRate = malv;
@@ -223,7 +221,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				SPUtil.putConfigIntValue(activity, "ccindex", 0);
 
 				UserDevice userDevice = GlobalHolder.getInstance().currendUserDevice;
-				GlobalHolder.getInstance().mOpenUers.add(userDevice);
+				GlobalHolder.getInstance().mOpenUerDevList.add(userDevice);
 				openVideo(userDevice);
 			}
 		}
@@ -252,7 +250,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			return;
 
 		// 关闭视频
-		if (user.getmUserId() == GlobalHolder.getInstance().getCurrentUserId()) {
+		if (user.getmUserId() == GlobalHolder.getInstance().getLocalUserId()) {
 			VideoRequest.getInstance().closeVideoDevice(confid,
 					videoHelper.getUserid(), "", null, 1);
 		} else {
@@ -265,13 +263,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		SurfaceView view = videoHelper.getView();
 
 		// 从集合和布局中移除SurfaceView
-		sws.remove(view);
+		mSurfaceViewList.remove(view);
 		opencache.remove(user.getmUserId());
 		video_content_main.removeView(view);
 		video_content_main2.removeView(view);
 		view.getHolder().getSurface().release();
 
-		if (sws.size() == 1) {
+		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 根据横竖屏设置父布局尺寸
@@ -289,7 +287,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置小布局宽高各为屏幕1/3大小,隐藏小布局
 			setPipLocation(true);
 
-		} else if (sws.size() == 2) {
+		} else if (mSurfaceViewList.size() == 2) {
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果打开过4路那么现在就要把布局2添加进来
@@ -316,7 +314,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 还是要手动调用一次点击切换画中画视频
 			video_content_main2.performClick();
 
-		} else if (sws.size() == 3) {
+		} else if (mSurfaceViewList.size() == 3) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
@@ -329,7 +327,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置大小布局不可点击
 			setLayoutClickable(false);
 
-		} else if (sws.size() == 4) {
+		} else if (mSurfaceViewList.size() == 4) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
@@ -342,7 +340,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置大小布局不可点击
 			setLayoutClickable(false);
 
-		} else if (sws.size() == 0) {
+		} else if (mSurfaceViewList.size() == 0) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 0;
 
@@ -393,12 +391,12 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			return;
 
 		// 判断是否是本地
-		boolean isLocal = user.getmUserId() == GlobalHolder.getInstance()
-				.getCurrentUserId();
+		boolean isLocal = user.getmUserId() == GlobalHolder.getInstance().getLocalUserId();
 
 		// 它会实例化本地或远端的SurfaceView
-		final VideoHelper mVideoHelper = new VideoHelper(activity,
-				device.getId(), isLocal);
+		final VideoHelper mVideoHelper = new VideoHelper(activity, device.getId(), isLocal);
+
+
 		// 再返回SurfaceView
 		SurfaceView view = mVideoHelper.getView();
 
@@ -436,19 +434,19 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 
 		}
 
-		sws.add(view);
+		mSurfaceViewList.add(view);
 		getScreenWH();
 		PublicInfo.DEVICE_ORIENTATION = SPUtil.getConfigIntValue(getActivity(),
 				"viewModePosition", 1);
 
-		if (sws.size() == 1) { // 当前只有1路视频的情况下
+		if (mSurfaceViewList.size() == 1) { // 当前只有1路视频的情况下
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局和大布局为填充屏幕
 			setLayoutMatchParent(video_content_main3);
 			setLayoutMatchParent(video_content_main);
 
-		} else if (sws.size() == 2) { // 当前有2路视频的情况下
+		} else if (mSurfaceViewList.size() == 2) { // 当前有2路视频的情况下
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果没有布局2就要把布局2添加进来
@@ -471,7 +469,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置所有布局为可点击
 			setLayoutClickable(true);
 
-		} else if (sws.size() == 3) { // 当前有3路视频的情况下
+		} else if (mSurfaceViewList.size() == 3) { // 当前有3路视频的情况下
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 设置父布局和大布局为填充屏幕
@@ -486,7 +484,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置所有布局为不可点击
 			setLayoutClickable(false);
 
-		} else if (sws.size() == 4) { // 当前有4路视频的情况下
+		} else if (mSurfaceViewList.size() == 4) { // 当前有4路视频的情况下
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 设置父布局为填充屏幕
@@ -515,7 +513,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 					return;
 				}
 
-				if (sws.size() == 2) {
+				if (mSurfaceViewList.size() == 2) {
 					// 如果用户打开了文件柜则禁止切换画中画
 					if (PublicInfo.isOpenedShareList) {
 						return;
@@ -556,7 +554,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		 * 打开两路视频时必须要代码执行一次点击切换.<br>
 		 * 否则新打开的视频会被覆盖看不见.
 		 */
-		if (sws.size() == 2) {
+		if (mSurfaceViewList.size() == 2) {
 			video_content_main2.performClick();
 		}
 
@@ -598,6 +596,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
 				PublicInfo.screenWidth / 3, PublicInfo.screenHeight / 3);
 		params.setMargins(PublicInfo.screenWidth / 3 * 2, 0, 0, 0);
+
 		params.width = PublicInfo.screenWidth / 3;
 		params.height = PublicInfo.screenHeight / 3;
 
@@ -626,7 +625,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			@Override
 			public void surfaceDestroyed(SurfaceHolder holder) {
 				VideoRequest.getInstance().closeVideoDevice(confid,
-						GlobalHolder.getInstance().getCurrentUserId(), "",
+						GlobalHolder.getInstance().getLocalUserId(), "",
 						null, 1);
 
 				LocaSurfaceView.getInstance().setbPreview(false);
@@ -635,7 +634,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			@Override
 			public void surfaceCreated(SurfaceHolder holder) {
 				VideoRequest.getInstance().openVideoDevice(confid,
-						GlobalHolder.getInstance().getCurrentUserId(), "",
+						GlobalHolder.getInstance().getLocalUserId(), "",
 						null, 1);
 
 				LocaSurfaceView.getInstance().setbPreview(true);
@@ -709,6 +708,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 
 	private void addCallbackForOtherSurface(final VideoHelper mVideoHelper,
 			final SurfaceView surface) {
+
 		surface.getHolder().addCallback(new Callback() {
 
 			@Override
@@ -763,9 +763,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 * @param isClick
 	 */
 	private void setSurfaceClickable(boolean isClick) {
-		for (int i = 0; i < sws.size(); i++) {
-			sws.get(i).setClickable(isClick);
-			sws.get(i).setFocusable(isClick);
+		for (int i = 0; i < mSurfaceViewList.size(); i++) {
+			mSurfaceViewList.get(i).setClickable(isClick);
+			mSurfaceViewList.get(i).setFocusable(isClick);
 		}
 	}
 
@@ -775,7 +775,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	@Override
 	public void changeCamera(int camera) {
 		// 设备id
-		String deviceid = GlobalHolder.getInstance().getCurrentUserId()
+		String deviceid = GlobalHolder.getInstance().getLocalUserId()
 				+ ":Camera";
 		// 摄像头状态
 		int cameraStatus = SPUtil.getConfigIntValue(activity, "local", 0);
@@ -849,12 +849,12 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		/**
 		 * 如果销毁的时候不加这些,则再次进入会议会崩溃.
 		 */
-		for (View view : sws) {
+		for (View view : mSurfaceViewList) {
 			if (view instanceof SurfaceView) {
 				((SurfaceView) view).getHolder().getSurface().release();
 			}
 		}
-		sws.clear();
+		mSurfaceViewList.clear();
 		activity = null;
 		opencache.clear();
 		mediacache.clear();
@@ -867,7 +867,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		video_content_main2 = null;
 		video_content_main3 = null;
 
-		sws = null;
+		mSurfaceViewList = null;
 		devInfo = null;
 		deviceList = null;
 		opencache = null;
@@ -884,25 +884,27 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	public void openMedia(final MediaEntity m) {
 		if (m == null)
 			return;
-		final VideoHelper mMediaHelper = new VideoHelper(activity,
-				m.getMediaId(), false);
+		final VideoHelper mMediaHelper = new VideoHelper(activity, m.getMediaId(), false);
+
 		SurfaceView view = mMediaHelper.getView();
+
 		mMediaHelper.setUserid(m.getOwnerID());
 
 		setPipLocation(false);
-		VideoRequest.getInstance().openVideoMixer(0, m.getMediaId(),
-				mMediaHelper.getVideoPlayer(), false, m.getMixerType());
-		sws.add(view);
+
+		VideoRequest.getInstance().openVideoMixer(0, m.getMediaId(), mMediaHelper.getVideoPlayer(), false, m.getMixerType());
+
+		mSurfaceViewList.add(view);
 		video_content_main.addView(view);
 
-		if (sws.size() == 1) {
+		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局为填充屏幕
 			setLayoutMatchParent(video_content_main3);
 			setLayoutMatchParent(video_content_main);
 		}
-		if (sws.size() == 2) {
+		if (mSurfaceViewList.size() == 2) {
 			// 设置一些状态
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
@@ -927,7 +929,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			setLayoutClickable(true);
 
 		}
-		if (sws.size() == 3) {
+		if (mSurfaceViewList.size() == 3) {
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 设置父布局和大布局为填充屏幕
@@ -942,7 +944,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置所有布局为不可点击
 			setLayoutClickable(false);
 		}
-		if (sws.size() == 4) {
+		if (mSurfaceViewList.size() == 4) {
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 设置父布局为填充屏幕
@@ -969,13 +971,12 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				if (!isCanSwitchTwoSurfaceView) {
 					Toast.makeText(
 							getActivity(),
-							getActivity().getResources().getString(
-									R.string.change_camera_fast_xviewsdk),
+							getActivity().getResources().getString(R.string.change_camera_fast_xviewsdk),
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
 
-				if (sws.size() == 2) {
+				if (mSurfaceViewList.size() == 2) {
 					if (PublicInfo.isOpenedShareList) {
 						return;
 					}
@@ -1005,7 +1006,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				}, 2000);
 			}
 		});
-		if (sws.size() == 2) {
+		if (mSurfaceViewList.size() == 2) {
 			video_content_main2.performClick();
 		}
 		mediacache.put(m.getMediaId(), mMediaHelper);
@@ -1027,13 +1028,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				mediaHelper.getVideoPlayer());
 
 		SurfaceView view = mediaHelper.getView();
-		sws.remove(view);
+		mSurfaceViewList.remove(view);
 		mediacache.remove(mediaId);
 		video_content_main.removeView(view);
 		video_content_main2.removeView(view);
 		view.getHolder().getSurface().release();
 
-		if (sws.size() == 1) {
+		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局和大布局为填充屏幕
@@ -1048,7 +1049,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置小布局宽高各为屏幕1/3大小,隐藏小布局
 			setPipLocation(true);
 
-		} else if (sws.size() == 2) {
+		} else if (mSurfaceViewList.size() == 2) {
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果打开过4路那么现在就要把布局2添加进来
@@ -1075,7 +1076,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			setLayoutClickable(true);
 
 			video_content_main2.performClick();
-		} else if (sws.size() == 3) {
+		} else if (mSurfaceViewList.size() == 3) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
@@ -1088,7 +1089,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置大小布局不可点击
 			setLayoutClickable(false);
 
-		} else if (sws.size() == 4) {
+		} else if (mSurfaceViewList.size() == 4) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
@@ -1101,7 +1102,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置大小布局不可点击
 			setLayoutClickable(false);
 
-		} else if (sws.size() == 0) {
+		} else if (mSurfaceViewList.size() == 0) {
 			PublicInfo.OPENED_VIDEO_COUNT = 0;
 		}
 	}

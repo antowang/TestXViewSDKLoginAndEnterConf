@@ -55,7 +55,6 @@ import com.cinlan.core.CaptureCapability;
 import com.cinlan.core.VideoCaptureDevInfo;
 import com.cinlan.core.VideoCaptureDevInfo.VideoCaptureDevice;
 import com.cinlan.jni.ConfRequest;
-import com.cinlan.jni.ImRequest;
 import com.cinlan.jni.VideoRequest;
 import com.cinlan.xview.PublicInfo;
 import com.cinlan.xview.XviewApplication.OnsetHomeListener;
@@ -70,6 +69,7 @@ import com.cinlan.xview.bean.data.Page;
 import com.cinlan.xview.msg.MediaEntity;
 import com.cinlan.xview.msg.MsgType;
 import com.cinlan.xview.service.JNIService;
+import com.cinlan.xview.ui.callback.VideoOpenListener;
 import com.cinlan.xview.ui.fragement.Fragment_Doc;
 import com.cinlan.xview.ui.fragement.Fragment_wb;
 import com.cinlan.xview.ui.fragement.Video_fragement;
@@ -86,9 +86,7 @@ import com.cinlankeji.khb.iphone.R;
  * 
  * @author Chong
  */
-public class ConfActivity extends FragmentActivity implements
-		OnsetHomeListener, Fragment_Doc.OnClickBackListener,
-		Fragment_wb.OnClickBackListener2 {
+public class ConfActivity extends FragmentActivity implements OnsetHomeListener, Fragment_Doc.OnClickBackListener, Fragment_wb.OnClickBackListener2 {
 	private static String XTAG = ConfActivity.class.getSimpleName();
 	public static ConfActivity mContext;
 
@@ -428,7 +426,6 @@ public class ConfActivity extends FragmentActivity implements
 	private static Handler confActivityHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-
 			/**
 			 * 显示或隐藏底边栏
 			 */
@@ -453,7 +450,6 @@ public class ConfActivity extends FragmentActivity implements
 	};
 
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -461,17 +457,18 @@ public class ConfActivity extends FragmentActivity implements
 		mContext = this;
 		setContentView(R.layout.activity_in_conf_xviewsdk);
 		ActivityHolder.getInstance().addActivity(this);
-		XviewLog.i(XTAG, " onCreate init start==========");
+
 		// 初始化布局加载器
 		inflater = LayoutInflater.from(this);
+
+
 		// 初始化音频管理器
 		mAudioManager = (AudioManager) getSystemService(mContext.AUDIO_SERVICE);
 		last_speakerphoneOn = mAudioManager.isSpeakerphoneOn();
 
 		// 默认一个视频尺寸
 		if (SPUtil.getConfigStrValue(mContext, "chicun").isEmpty()) {
-			SPUtil.putConfigStrValue(mContext, "chicun",
-					PublicInfo.Support2Level);
+			SPUtil.putConfigStrValue(mContext, "chicun", PublicInfo.Support2Level);
 		}
 
 		// 初始化屏幕宽高
@@ -481,16 +478,22 @@ public class ConfActivity extends FragmentActivity implements
 		lastmode = mAudioManager.getMode();
 		// 获取当前Conf
 		mConf = (Conf) getIntent().getSerializableExtra("conf");
+
 		GlobalHolder.CurrentConfId = mConf.getId();
+
+
 		// 设置麦克风为开
 		setSpeakLounder(true);
 		// 获取视频捕获设备信息类
 		devInfo = VideoCaptureDevInfo.CreateVideoCaptureDevInfo();
 		// 通过视频捕获设备信息类获取设备列表
 		deviceList = devInfo.deviceList;
+
+
 		if (deviceList.size() == 0) {
 			SPUtil.putConfigIntValue(mContext, "local", 2/* 无摄像头 */);
 		}
+
 		// 初始化本地的设备的支持的分辨率
 		initLocalSupport();
 		// 获取共享文档集合
@@ -499,37 +502,50 @@ public class ConfActivity extends FragmentActivity implements
 		userdevices = GlobalHolder.getInstance().getUserDevice();
 
 		List<String> users = new ArrayList<String>();
+
 		for (int i = 0; i < userdevices.size(); i++) {
 			users.add(userdevices.get(i).getUser().getmUserId() + "");
 		}
+
 		XviewLog.i(XTAG, " onGetUserListListener = " + users.size());
+
 		EnterConf.mIOnXViewCallback.onGetUserListListener(users);
 
-		// 获取视频碎片实例
+		//获取视频碎片实例
 		videoFragement = Video_fragement.newInstance();
 		// 获取视频流集合
-		medias = GlobalHolder.getInstance().getMediaDevice();
+		medias = GlobalHolder.getInstance().getMediaEntityList();
 		// 设置视频设备监听器的接收者
 		setmVideoOpenListener(videoFragement);
 
 		// 添加到当前Activity
-		FragmentTransaction beginTransaction = getSupportFragmentManager()
-				.beginTransaction();
-		beginTransaction.replace(R.id.view_conf_videolist_xviewsdk,
-				videoFragement);
+		FragmentTransaction beginTransaction = getSupportFragmentManager().beginTransaction();
+
+		beginTransaction.replace(R.id.view_conf_videolist_xviewsdk, videoFragement);
+
 		beginTransaction.commit();
 
 		lbm = LocalBroadcastManager.getInstance(GlobalHolder.GlobalContext);
+
+
 		// 初始化广播接收器
 		initReceiver();
+
+
 		// 初始化布局控件
 		initView();
+
+
 		// 初始化用户列表
 		initUserListView();
+
+
 		// 初始化共享数据
 		initDataView();
+
 		// 初始化文档详情布局
 		initDocDetailView();
+
 		// 初始化白板详情布局
 		initWbDetailView();
 
@@ -628,7 +644,7 @@ public class ConfActivity extends FragmentActivity implements
 		/**
 		 * 如果销毁的时候不加这些,则再次进入会议会崩溃.
 		 */
-		GlobalHolder.getInstance().mOpenUers.clear();
+		GlobalHolder.getInstance().mOpenUerDevList.clear();
 		GlobalHolder.getInstance().mOpenMedia.clear();
 		GlobalHolder.getInstance().list.clear();
 		GlobalHolder.getInstance().mSpeakUers.clear();
@@ -640,7 +656,7 @@ public class ConfActivity extends FragmentActivity implements
 		if (mConfUserListAdapter != null) {
 			Collections.sort(userdevices);
 			userdevices = GlobalHolder.getInstance().getUserDevice();
-			medias = GlobalHolder.getInstance().getMediaDevice();
+			medias = GlobalHolder.getInstance().getMediaEntityList();
 			mConfUserListAdapter.update(userdevices, medias);
 		}
 
@@ -1052,22 +1068,20 @@ public class ConfActivity extends FragmentActivity implements
 		// 参会者列表
 		lv_conf_userlist = (ListView) view_conf_userlist
 				.findViewById(R.id.lv_conf_userlist_xviewsdk);
-		mConfUserListAdapter = new ConfDeviceAdapter(mContext, userdevices,
-				medias);
+		mConfUserListAdapter = new ConfDeviceAdapter(mContext, userdevices, medias);
 		lv_conf_userlist.setAdapter(mConfUserListAdapter);
 		lv_conf_userlist.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1,
-									int position, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 				userdevices = GlobalHolder.getInstance().getUserDevice();
 				if (position <= userdevices.size() - 1) {
 					UserDevice userDevice = userdevices.get(position);
 					// 准备打开用户设备视频
 					readyOpenDevice(userDevice);
 				} else if (position > userdevices.size() - 1) {
-					MediaEntity entity = medias.get(position
-							- userdevices.size());
+
+					MediaEntity entity = medias.get(position - userdevices.size());
 					// 准备打开视频流
 					readyOpenMedia(entity);
 				}
@@ -1088,7 +1102,7 @@ public class ConfActivity extends FragmentActivity implements
 
 			@Override
 			public void onClick(View v) {
-				closePlayer();
+				closePlayerLayout();
 				openShareList();
 			}
 		});
@@ -1120,7 +1134,7 @@ public class ConfActivity extends FragmentActivity implements
 									.sendEmptyMessage(PublicInfo.CLOSE_SHARE_TO_COLUMNLAYOUT);
 					}
 				}
-				closePlayer();
+				closePlayerLayout();
 				if (right_sliding_layer.getChildAt(0) == view_conf_sharedata) {
 					iv_conf_share.requestFocus();
 				}
@@ -1297,7 +1311,7 @@ public class ConfActivity extends FragmentActivity implements
 	 * @param userdevice
 	 */
 	protected void readyOpenDevice(final UserDevice userdevice) {
-		final List<UserDevice> openUsers = GlobalHolder.getInstance().mOpenUers;
+		final List<UserDevice> openUsers = GlobalHolder.getInstance().mOpenUerDevList;
 		if (userdevice == null)
 			return;
 		final User user = userdevice.getUser();
@@ -1317,11 +1331,11 @@ public class ConfActivity extends FragmentActivity implements
 		// 如果本设备还没有打开,就打开设备
 		if (!openUsers.contains(userdevice)) {
 			openDevice(userdevice, user);
-			closePlayer();
+			closePlayerLayout();
 		} else {
 			// 如果本设备已经打开,就关闭设备
 			closeDevice(userdevice);
-			closePlayer();
+			closePlayerLayout();
 		}
 	}
 
@@ -1331,6 +1345,7 @@ public class ConfActivity extends FragmentActivity implements
 	 * @param m
 	 */
 	protected void readyOpenMedia(final MediaEntity m) {
+
 		final List<MediaEntity> openMedias = GlobalHolder.getInstance().mOpenMedia;
 		if (m == null)
 			return;
@@ -1338,11 +1353,12 @@ public class ConfActivity extends FragmentActivity implements
 		if (!openMedias.contains(m)) {
 			// 打开视频流
 			openMeida(m);
-			closePlayer();
+			closePlayerLayout();
+
 		} else {
 			// 关闭视频流
 			closeMedia(m);
-			closePlayer();
+			closePlayerLayout();
 		}
 	}
 
@@ -1359,7 +1375,7 @@ public class ConfActivity extends FragmentActivity implements
 
 			if (user.getmUserId() == userId
 					&& device.getDevice().getId().equals(DstDeviceID)) {
-				if (GlobalHolder.getInstance().mOpenUers.size()
+				if (GlobalHolder.getInstance().mOpenUerDevList.size()
 						+ GlobalHolder.getInstance().mOpenMedia.size() >= 4) {
 					return;
 				}
@@ -1430,8 +1446,8 @@ public class ConfActivity extends FragmentActivity implements
 		if (user == null)
 			return;
 
-		if (GlobalHolder.getInstance().mOpenUers.contains(userdevice)) {
-			GlobalHolder.getInstance().mOpenUers.remove(userdevice);
+		if (GlobalHolder.getInstance().mOpenUerDevList.contains(userdevice)) {
+			GlobalHolder.getInstance().mOpenUerDevList.remove(userdevice);
 			if (mVideoOpenListener != null) {
 				PublicInfo.isClosedLocalVideo = true;
 				mVideoOpenListener.closeVideo(userdevice);
@@ -1456,7 +1472,7 @@ public class ConfActivity extends FragmentActivity implements
 			mVideoOpenListener.closeMedia(m);
 		}
 
-		medias = GlobalHolder.getInstance().getMediaDevice();
+		medias = GlobalHolder.getInstance().getMediaEntityList();
 
 		if (mConfUserListAdapter != null) {
 			mConfUserListAdapter.update(userdevices, medias);
@@ -1465,12 +1481,12 @@ public class ConfActivity extends FragmentActivity implements
 
 	/**
 	 * 打开用户视频设备
-	 * 
 	 * @param userdevice
 	 * @param user
 	 */
 	private void openDevice(final UserDevice userdevice, final User user) {
-		if (GlobalHolder.getInstance().mOpenUers.contains(userdevice)) {
+
+		if (GlobalHolder.getInstance().mOpenUerDevList.contains(userdevice)) {
 			// 已经查看了该路视频
 			PublicInfo.toast(mContext, R.string.hasopen_xviewsdk);
 			return;
@@ -1479,21 +1495,21 @@ public class ConfActivity extends FragmentActivity implements
 		List<VideoDevice> devicelist = GlobalHolder.getInstance().videodevices
 				.get(user.getmUserId());
 
-		if (user.getmUserId() == GlobalHolder.getInstance().getCurrentUserId()
+		if (user.getmUserId() == GlobalHolder.getInstance().getLocalUserId()
 				|| (devicelist != null && devicelist.size() > 0)) {
 			if (user.getmUserId() == GlobalHolder.getInstance()
-					.getCurrentUserId()) {
+					.getLocalUserId()) {
 				PublicInfo.isClosedLocalVideo = false;
 				// 有摄像头,已被打开
 				SPUtil.putConfigIntValue(mContext, "local", 1);
 			}
-			if (GlobalHolder.getInstance().mOpenUers.size()
+			if (GlobalHolder.getInstance().mOpenUerDevList.size()
 					+ GlobalHolder.getInstance().mOpenMedia.size() >= 4) {
 				// 最多打开4路视频,请先关闭其他参会者视频
 				PublicInfo.toast(mContext, R.string.maxfour_xviewsdk);
 				return;
 			}
-			GlobalHolder.getInstance().mOpenUers.add(userdevice);
+			GlobalHolder.getInstance().mOpenUerDevList.add(userdevice);
 			if (mVideoOpenListener != null) {
 				try {
 					mVideoOpenListener.openVideo(userdevice);
@@ -1519,8 +1535,7 @@ public class ConfActivity extends FragmentActivity implements
 			return;
 		}
 
-		if (GlobalHolder.getInstance().mOpenUers.size()
-				+ GlobalHolder.getInstance().mOpenMedia.size() >= 4) {
+		if (GlobalHolder.getInstance().mOpenUerDevList.size() + GlobalHolder.getInstance().mOpenMedia.size() >= 4) {
 			// 最多打开4路视频,请先关闭其他参会者视频
 			PublicInfo.toast(mContext, R.string.maxfour_xviewsdk);
 			return;
@@ -1541,7 +1556,7 @@ public class ConfActivity extends FragmentActivity implements
 			mConfUserListAdapter.update(userdevices, medias);
 		}
 
-		closePlayer();
+		closePlayerLayout();
 	}
 
 	/**
@@ -2362,12 +2377,13 @@ public class ConfActivity extends FragmentActivity implements
 							public void onClick(View v) {
 								boolean isEnterConf = SPUtil.getConfigBoolean(
 										mContext, "islockconf", false);
-//								if (PublicInfo.isAnonymousLogin || isEnterConf) {
+								if (PublicInfo.isAnonymousLogin || isEnterConf) {
 									PublicInfo.logout(mContext);
-//									ConfActivity.this.finish();
-//								} else {
-//									ConfActivity.this.finish();
-//								}
+									ConfActivity.this.finish();
+								} else {
+
+									ConfActivity.this.finish();
+								}
 							}
 						})
 				.setNegativeButton(
@@ -2395,7 +2411,7 @@ public class ConfActivity extends FragmentActivity implements
 			int msgtype = intent.getIntExtra("msgtype", -1);
 			XviewLog.i(XTAG, "msgtype=" + msgtype);
 			userdevices = GlobalHolder.getInstance().getUserDevice();
-			medias = GlobalHolder.getInstance().getMediaDevice();
+			medias = GlobalHolder.getInstance().getMediaEntityList();
 			switch (msgtype) {
 			// 当断网时候
 			case MsgType.DISCONNECTED:
@@ -2414,25 +2430,31 @@ public class ConfActivity extends FragmentActivity implements
 				PublicInfo.logout(mContext);
 				XviewLog.i(XTAG, " MsgType.KICK_CONF  receiveBroadcast end");
 				break;
+
+
+
+
 			// 有成员加入
 			case MsgType.MEMBER_ENTER:
 				XviewLog.i(XTAG, " MsgType.MEMBER_ENTER  receiveBroadcast success");
 				// 循环遍历看看谁设置摄像头为禁用
 				userdevices = GlobalHolder.getInstance().getUserDevice();
-				medias = GlobalHolder.getInstance().getMediaDevice();
+				medias = GlobalHolder.getInstance().getMediaEntityList();
 				for (UserDevice userdevice : userdevices) {
 					VideoDevice device = userdevice.getDevice();
 					User user = userdevice.getUser();
 					if (device != null && user != null) {
 						int disable = device.getDisable();
 						if (disable == 1) {
-							GlobalHolder.getInstance().mOpenUers
+							GlobalHolder.getInstance().mOpenUerDevList
 									.remove(userdevice);
 							if (mVideoOpenListener != null)
 								mVideoOpenListener.closeVideo(userdevice);
 						}
 					}
 				}
+
+
 
 				if (mConfUserListAdapter != null) {
 					Collections.sort(userdevices);
@@ -2444,12 +2466,16 @@ public class ConfActivity extends FragmentActivity implements
 				EnterConf.mIOnXViewCallback.onMemberEnterListener(GlobalHolder.EnterMemberUserId,
 						GlobalHolder.EnterMemberUserNickName, GlobalHolder.EnterMemberUserData);
 				XviewLog.i(XTAG, " MsgType.MEMBER_ENTER  receiveBroadcast end");
+
+
+
+
 				break;
 			case MsgType.VIDEO_LIST:
 				XviewLog.i(XTAG, " MsgType.VIDEO_LIST  receiveBroadcast success");
 				// 循环遍历看看谁设置摄像头为禁用
 				userdevices = GlobalHolder.getInstance().getUserDevice();
-				medias = GlobalHolder.getInstance().getMediaDevice();
+				medias = GlobalHolder.getInstance().getMediaEntityList();
 				XviewLog.i(XTAG, " MsgType.VIDEO_LIST  userdevices.size()=" + userdevices.size());
 				XviewLog.i(XTAG, " MsgType.VIDEO_LIST  medias.size()=" + medias.size());
 				for (UserDevice userdevice : userdevices) {
@@ -2458,15 +2484,17 @@ public class ConfActivity extends FragmentActivity implements
 					if (device != null && user != null) {
 						int disable = device.getDisable();
 						if (disable == 1) {
-							XviewLog.i(XTAG, " MsgType.VIDEO_LIST  mOpenUers.remove " + userdevice.getUser().getmUserId());
-							GlobalHolder.getInstance().mOpenUers
-									.remove(userdevice);
+							XviewLog.i(XTAG, " MsgType.VIDEO_LIST  mOpenUerDevList.remove " + userdevice.getUser().getmUserId());
+							GlobalHolder.getInstance().mOpenUerDevList.remove(userdevice);
 							if (mVideoOpenListener != null) {
 								XviewLog.i(XTAG, " MsgType.VIDEO_LIST  closeVideo " + userdevice.getUser().getmUserId());
 								mVideoOpenListener.closeVideo(userdevice);
 							}
 						}
 					}
+
+
+
 					XviewLog.i(XTAG, " MsgType.VIDEO_LIST  user.getmUserId() = " + user.getmUserId());
 					XviewLog.i(XTAG, " MsgType.VIDEO_LIST  GlobalHolder.EnterMemberUserId = " + GlobalHolder.EnterMemberUserId);
 					XviewLog.i(XTAG, " MsgType.VIDEO_LIST  GlobalHolder.getInstance().userdevices.size() = " + GlobalHolder.getInstance().userdevices.size());
@@ -2492,7 +2520,7 @@ public class ConfActivity extends FragmentActivity implements
 				// int syncvideo = Integer.parseInt(desc.getSyncvideo());
 				// if (syncvideo == 2) {
 				// List<UserDevice> mOpenVideos =
-				// GlobalHolder.getInstance().mOpenUers;
+				// GlobalHolder.getInstance().mOpenUerDevList;
 				// List<MediaEntity> mOpenMedias =
 				// GlobalHolder.getInstance().mOpenMedia;
 				// while (mOpenVideos.size() > 0) {
@@ -2530,7 +2558,7 @@ public class ConfActivity extends FragmentActivity implements
 				//
 				// if (nDstUserID > 100) {
 				// List<UserDevice> devices2 =
-				// GlobalHolder.getInstance().mOpenUers;
+				// GlobalHolder.getInstance().mOpenUerDevList;
 				// for (int i = 0; i < devices2.size(); i++) {
 				// if (devices2.get(i).getDevice().getId()
 				// .equals(sDstMediaID)) {
@@ -2549,7 +2577,9 @@ public class ConfActivity extends FragmentActivity implements
 				XviewLog.i(XTAG, " MsgType.SYNC_CLOSE_VIDEO  receiveBroadcast end");
 				break;
 			case MsgType.VIDEOREMOTE_SETTING_COME: // PC远程设置移动端参数
+
 				XviewLog.i(XTAG, " MsgType.VIDEOREMOTE_SETTING_COME  receiveBroadcast success");
+
 				Bundle data = intent.getExtras();
 				String dev = data.getString("dev", "");
 				int nDisable = data.getInt("nDisable", 1);
@@ -2669,7 +2699,7 @@ public class ConfActivity extends FragmentActivity implements
 			case MsgType.PERIMSSTYPE:
 				XviewLog.i(XTAG, " MsgType.PERIMSSTYPE  receiveBroadcast success");
 				Integer integer = GlobalHolder.getInstance().mSpeakUers
-						.get(GlobalHolder.getInstance().getCurrentUserId());
+						.get(GlobalHolder.getInstance().getLocalUserId());
 				if (integer != null && integer == 3) {
 					iv_conf_micro
 							.setImageResource(R.drawable.conf_micro_fayan_selector_xviewsdk);
@@ -2714,7 +2744,7 @@ public class ConfActivity extends FragmentActivity implements
 				List<UserDevice> findUserDevices = GlobalHolder.getInstance()
 						.findHasOpenUserDevice(userid);
 				for (UserDevice findUserDevice : findUserDevices) {
-					if (GlobalHolder.getInstance().mOpenUers
+					if (GlobalHolder.getInstance().mOpenUerDevList
 							.contains(findUserDevice)) {
 						VideoDevice device = findUserDevice.getDevice();
 						if (device != null)
@@ -2784,7 +2814,7 @@ public class ConfActivity extends FragmentActivity implements
 			case MsgType.CONF_MUTE:
 				XviewLog.i(XTAG, " MsgType.CONF_MUTE  receiveBroadcast success");
 				Integer muteid = GlobalHolder.getInstance().mSpeakUers
-						.get(GlobalHolder.getInstance().getCurrentUserId());
+						.get(GlobalHolder.getInstance().getLocalUserId());
 				if (muteid != null && muteid == 3) {
 					ConfRequest.getInstance().releaseControlPermission(3);
 				}
@@ -2873,62 +2903,6 @@ public class ConfActivity extends FragmentActivity implements
 		dissconnected_dialog.show();
 	}
 
-	/**
-	 * 视频设备的监听器
-	 * 
-	 * @author laoyu
-	 * 
-	 */
-	public interface VideoOpenListener {
-		/**
-		 * 关闭视频设备
-		 * 
-		 * @param u
-		 */
-		void closeVideo(UserDevice u);
-
-		/**
-		 * 打开视频设备
-		 * 
-		 * @param u
-		 */
-		void openVideo(UserDevice u);
-
-		/**
-		 * 换成前置 还是后置摄像头
-		 * 
-		 * @param i
-		 */
-		void changeCamera(int i);
-
-		/**
-		 * 应用设置的分辨率/视频流量/帧率/格式/设备方向/是否前置
-		 * 
-		 * @param width
-		 * @param height
-		 * @param videoFlow
-		 * @param frameRate
-		 * @param format
-		 * @param requestedOrientation
-		 * @param enabeleFrontCam
-		 */
-		void applySetting(int width, int height, int videoFlow, int frameRate,
-				int format, int requestedOrientation, boolean enabeleFrontCam);
-
-		/**
-		 * 打开视频流
-		 * 
-		 * @param m
-		 */
-		void openMedia(MediaEntity m);
-
-		/**
-		 * 关闭视频流
-		 * 
-		 * @param m
-		 */
-		void closeMedia(MediaEntity m);
-	}
 
 	/**
 	 * 显示或隐藏底边栏
@@ -2981,7 +2955,10 @@ public class ConfActivity extends FragmentActivity implements
 		return mVideoOpenListener;
 	}
 
+
+
 	public void setmVideoOpenListener(VideoOpenListener mVideoOpenListener) {
+
 		this.mVideoOpenListener = mVideoOpenListener;
 	}
 
@@ -3127,10 +3104,12 @@ public class ConfActivity extends FragmentActivity implements
 		}
 	}
 
+
+
 	/**
 	 * 关闭SlidingLayer播放器
 	 */
-	private void closePlayer() {
+	private void closePlayerLayout() {
 		if (right_sliding_layer != null && right_sliding_layer.isOpened()) {
 			right_sliding_layer.closeLayer(false);
 			setRequestFoucsAble(true);
@@ -3184,6 +3163,7 @@ public class ConfActivity extends FragmentActivity implements
 				videoFlow = 512 * 1024;
 			}
 		}
+
 		// 获取摄像头索引
 		int configIntValue = SPUtil.getConfigIntValue(mContext, "ccindex", 0);
 

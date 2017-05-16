@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/rlTopBar_xviewsdk"
@@ -10,7 +10,7 @@
         android:layout_gravity="top"
         android:layout_marginTop="10dp"
         android:clickable="false"
-        android:focusable="false" >
+        android:focusable="false">
 
         <RelativeLayout
             android:id="@+id/rlChangeCamera_xviewsdk"
@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:paddingLeft="20dp" >
+            android:paddingLeft="20dp">
 
             <ImageView
                 android:id="@+id/iv_conf_video_xviewsdk"
@@ -39,7 +39,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/rlChangeCamera_xviewsdk"
             android:gravity="center"
-            android:paddingLeft="20dp" >
+            android:paddingLeft="20dp">
 
             <ImageView
                 android:id="@+id/iv_conf_closevideo_xviewsdk"
@@ -60,7 +60,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/rlOpenCloseCamera_xviewsdk"
             android:gravity="center"
-            android:paddingLeft="20dp" >
+            android:paddingLeft="20dp">
 
             <ImageView
                 android:id="@+id/iv_conf_micro_xviewsdk"
@@ -82,7 +82,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/rlMicro_xviewsdk"
             android:gravity="center"
-            android:paddingLeft="20dp" >
+            android:paddingLeft="20dp">
 
             <ImageView
                 android:id="@+id/ivEndConf_xviewsdk"
@@ -103,7 +103,7 @@
         android:layout_gravity="bottom"
         android:background="#aa474642"
         android:clickable="false"
-        android:focusable="false" >
+        android:focusable="false">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -112,7 +112,7 @@
             android:clickable="false"
             android:focusable="false"
             android:gravity="center"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" >
+                android:paddingRight="10dp">
 
                 <ImageView
                     android:id="@+id/iv_conf_share_xviewsdk"
@@ -140,7 +140,7 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" >
+                android:paddingRight="10dp">
 
                 <ImageView
                     android:id="@+id/iv_conf_userlist_xviewsdk"
@@ -160,7 +160,7 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" >
+                android:paddingRight="10dp">
 
                 <ImageView
                     android:id="@+id/iv_conf_setting_xviewsdk"
@@ -176,5 +176,4 @@
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
-
 </FrameLayout>

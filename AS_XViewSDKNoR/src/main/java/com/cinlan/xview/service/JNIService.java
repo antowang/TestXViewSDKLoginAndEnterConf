@@ -41,6 +41,8 @@ import com.cinlan.xview.bean.data.Label;
 import com.cinlan.xview.bean.data.Page;
 import com.cinlan.xview.msg.DataEntity;
 import com.cinlan.xview.msg.EnterConfType;
+import com.cinlan.xview.msg.EventConfMsg;
+import com.cinlan.xview.msg.EventMsgType;
 import com.cinlan.xview.msg.MediaEntity;
 import com.cinlan.xview.msg.MemberEnter;
 import com.cinlan.xview.msg.MemberExit;
@@ -52,6 +54,8 @@ import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.XmlParserUtils;
 import com.cinlan.xview.utils.XviewLog;
 import com.cinlankeji.khb.iphone.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class JNIService extends Service {
 
@@ -113,6 +117,10 @@ public class JNIService extends Service {
 				lbm.sendBroadcast(enterconfintent);
 				XviewLog.i(XTAG, "ENTER_CONF  sendBroadcast success");
 				break;
+
+
+
+
 			case MEMBER_ENTER:
 				Intent enterIntent = new Intent(GET_CONFLIST);
 				enterIntent.putExtra("msgtype", MsgType.MEMBER_ENTER);
@@ -120,6 +128,12 @@ public class JNIService extends Service {
 				lbm.sendBroadcast(enterIntent);
 				XviewLog.i(XTAG, "MEMBER_ENTER  sendBroadcast success");
 				break;
+
+
+
+
+
+
 			case MEMBER_EXIT:
 				XviewLog.i(XTAG, " MEMBER_EXIT msg");
 				MemberExit exit = (MemberExit) msg.obj;
@@ -154,10 +168,14 @@ public class JNIService extends Service {
 				String szXmlData = (String) msg.obj;
 				// 通过解析得到所有已经进入视频会议了，并给大仓库GlobaHolder
 				Map<Long, List<VideoDevice>> parserVideodevice = XmlParserUtils
-						.parserVideodevice(new ByteArrayInputStream(szXmlData
-								.getBytes()));
+						.parserVideodevice(new ByteArrayInputStream(szXmlData.getBytes()));
+
 				if (parserVideodevice != null && parserVideodevice.size() != 0)
 					GlobalHolder.getInstance().addDevice(parserVideodevice);
+
+
+				EventBus.getDefault().post(new EventConfMsg(EventMsgType.ON_NEW_USER_ENTER));
+
 
 				Intent enter2Intent = new Intent(GET_CONFLIST);
 				enter2Intent.putExtra("msgtype", MsgType.VIDEO_LIST);
@@ -326,10 +344,14 @@ public class JNIService extends Service {
 				int monitorIndex = entyEntity.getMonitorIndex();
 				int mixerType = entyEntity.getMixerType();
 				long ownerID = entyEntity.getOwnerID();
-				GlobalHolder.getInstance().addMediaDevice(mediaId, name,
-						monitorIndex, mixerType, ownerID);
+
+				GlobalHolder.getInstance().addMediaDevice(mediaId, name, monitorIndex, mixerType, ownerID);
+
+
+
 				Intent mediaIntent = new Intent(GET_CONFLIST);
 				mediaIntent.putExtra("msgtype", MsgType.MEDIA_MIXER);
+
 				lbm.sendBroadcast(mediaIntent);
 				XviewLog.i(XTAG, "MEDIA_MIXER  sendBroadcast success");
 				break;
@@ -555,23 +577,29 @@ public class JNIService extends Service {
 		public void OnConfMemberEnterCallback(long nConfID, long nTime,
 				String szUserInfos) {
 			super.OnConfMemberEnterCallback(nConfID, nTime, szUserInfos);
+
 			User enterConfMem = XmlParserUtils
 					.parserEnterConfMem(new ByteArrayInputStream(szUserInfos
 							.getBytes()));
+
 			if (enterConfMem != null) {
 				GlobalHolder.EnterMemberUserId = enterConfMem.getmUserId();
 				GlobalHolder.EnterMemberUserNickName = enterConfMem.getNickName();
 				GlobalHolder.EnterMemberUserData = enterConfMem.getmEmail();
 			}
+
+
+			//添加进入的成员
 			GlobalHolder.getInstance().addAttended(enterConfMem);
+
+
 			MemberEnter enter = new MemberEnter();
 			enter.setnConfID(nConfID);
 			enter.setnTime(nTime);
 			enter.setSzUserInfos(szUserInfos);
 			Message.obtain(mHandler, MEMBER_ENTER, enter).sendToTarget();
 
-			SharedPreferences pre = getSharedPreferences("UserIdName",
-					getApplication().MODE_PRIVATE);
+			SharedPreferences pre = getSharedPreferences("UserIdName", getApplication().MODE_PRIVATE);
 			SharedPreferences.Editor editor = pre.edit();
 			editor.putString("" + enterConfMem.getmUserId(),
 					"" + enterConfMem.getNickName());
@@ -799,6 +827,12 @@ public class JNIService extends Service {
 
 	}
 
+
+	/**
+	 * 当有新的用户进入之后,改用户的视频设备信息返回
+	 *
+	 *
+	 */
 	class VideoQuestCB implements VideoRequestCallback {
 
 		private Handler mHandler;

@@ -153,11 +153,11 @@ public class VideoDevice implements Serializable, Comparable<VideoDevice> {
 	@Override
 	public int compareTo(VideoDevice another) {
 		// make sure current user align first position
-		if (this.userid == GlobalHolder.getInstance().getCurrentUserId()) {
+		if (this.userid == GlobalHolder.getInstance().getLocalUserId()) {
 			return -1;
 		}
 		if (another.getUserid() == GlobalHolder.getInstance()
-				.getCurrentUserId()) {
+				.getLocalUserId()) {
 			return 1;
 		}
 		return 0;

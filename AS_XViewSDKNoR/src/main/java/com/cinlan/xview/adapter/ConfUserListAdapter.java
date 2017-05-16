@@ -83,7 +83,7 @@ public class ConfUserListAdapter extends BaseAdapter {
 		holder.iv_has_audio.setVisibility(View.INVISIBLE);
 		holder.iv_has_video.setVisibility(View.INVISIBLE);
 		
-		boolean contains = GlobalHolder.getInstance().mOpenUers.contains(user);
+		boolean contains = GlobalHolder.getInstance().mOpenUerDevList.contains(user);
 		if(contains){
 			holder.iv_has_video.setVisibility(View.VISIBLE);
 		}

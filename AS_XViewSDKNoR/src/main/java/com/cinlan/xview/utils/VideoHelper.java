@@ -33,9 +33,9 @@ public class VideoHelper {
 	private boolean local = false;
 	private long last_pts = 0;
 
-	public VideoHelper(Activity ctx, String devid, boolean isLocal) {
+	public VideoHelper(Activity ctx, String devId, boolean isLocal) {
 		local = isLocal;
-		szDevid = devid;
+		szDevid = devId;
 
 		if (local) {
 			// 获取本地视频播放的SurfaceView
@@ -46,8 +46,7 @@ public class VideoHelper {
 			videoPlayer.setVideoHeler(this);
 
 			// 获取远端视频播放的SurfaceView
-			view = RemotePlayerManger.getInstance().getRemoteSurfaceView(ctx,
-					szDevid,  SCALE_TO_FIT);
+			view = RemotePlayerManger.getInstance().getRemoteSurfaceView(ctx, szDevid,  SCALE_TO_FIT);
 		}
 	}
 

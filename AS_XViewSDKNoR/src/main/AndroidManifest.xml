@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cinlankeji.khb.iphone"
-    android:versionCode="68"
-    android:versionName="3.2.7.6" >
+    android:versionCode="69"
+    android:versionName="3.2.7.7" >
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="23" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -68,6 +68,14 @@
 
         <service android:name="com.cinlan.xview.service.JNIService" >
         </service>
+
+
+        <!--点对点单呼activity-->
+        <activity
+            android:theme="@style/activity_full_style"
+            android:name="com.cinlan.xview.ui.p2p.view.PToPActivity">
+
+        </activity>
     </application>
 
 </manifest>

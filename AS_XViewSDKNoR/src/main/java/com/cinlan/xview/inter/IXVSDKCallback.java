@@ -54,8 +54,6 @@ public interface IXVSDKCallback {
 	/**
 	 * 有成员进入会议
 	 * 
-	 * @param users
-	 *            用户id集合
 	 */
 	void onMemberEnterListener(long userId, String nickName, String userData);
 

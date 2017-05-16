@@ -12,7 +12,7 @@ import android.hardware.Camera.Size;
 import com.cinlan.xview.utils.XviewLog;
 
 /**
- * 视频捕获设备信息类<br>
+ * 视频捕获设备信息相关类
  * 包含Camera参数信息和视频捕获相关信息.
  * 
  */

@@ -475,11 +475,11 @@ public class User implements Comparable<User>, Serializable {
 	@Override
 	public int compareTo(User another) {
 		// make sure current user align first position
-		if (this.mUserId == GlobalHolder.getInstance().getCurrentUserId()) {
+		if (this.mUserId == GlobalHolder.getInstance().getLocalUserId()) {
 			return -1;
 		}
 		if (another.getmUserId() == GlobalHolder.getInstance()
-				.getCurrentUserId()) {
+				.getLocalUserId()) {
 			return 1;
 		}
 

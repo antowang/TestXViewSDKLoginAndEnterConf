@@ -132,7 +132,7 @@ public class ConfDeviceAdapter extends BaseAdapter {
 				holder.iv_has_video.setVisibility(View.INVISIBLE);
 
 				if (user.getmUserId() == GlobalHolder.getInstance()
-						.getCurrentUserId()) {
+						.getLocalUserId()) {
 					/**
 					 * Self.
 					 */
@@ -164,7 +164,7 @@ public class ConfDeviceAdapter extends BaseAdapter {
 					 * Other User.
 					 */
 					// Whether it has been viewed.
-					boolean contains = GlobalHolder.getInstance().mOpenUers
+					boolean contains = GlobalHolder.getInstance().mOpenUerDevList
 							.contains(userDevice);
 
 					if (contains) {
@@ -244,16 +244,14 @@ public class ConfDeviceAdapter extends BaseAdapter {
 			MediaEntity entity = medias.get(position - devices.size());
 			holder1.item_tv_mediaName.setText(entity.getName());
 			holder1.iv_has_video.setVisibility(View.INVISIBLE);
-			boolean contains = GlobalHolder.getInstance().mOpenMedia
-					.contains(entity);
+			boolean contains = GlobalHolder.getInstance().mOpenMedia.contains(entity);
+
 			if (contains) {
 				holder1.iv_has_video.setVisibility(View.VISIBLE);
-				holder1.iv_has_video
-						.setImageResource(R.drawable.video_userlist_see_xviewsdk);
+				holder1.iv_has_video.setImageResource(R.drawable.video_userlist_see_xviewsdk);
 			} else {
 				holder1.iv_has_video.setVisibility(View.VISIBLE);
-				holder1.iv_has_video
-						.setImageResource(R.drawable.video_userlist_normal_xviewsdk);
+				holder1.iv_has_video.setImageResource(R.drawable.video_userlist_normal_xviewsdk);
 			}
 			break;
 		}

@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.cinlan.xview.utils.CrashHandler;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.SPUtil;
 
@@ -118,7 +117,7 @@ public class XviewApplication extends Application {
 	public void onTerminate() {
 		super.onTerminate();
 
-		GlobalHolder.getInstance().mOpenUers.clear();
+		GlobalHolder.getInstance().mOpenUerDevList.clear();
 		GlobalHolder.getInstance().mOpenMedia.clear();
 		GlobalHolder.getInstance().list.clear();
 		GlobalHolder.getInstance().mSpeakUers.clear();

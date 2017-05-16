@@ -121,7 +121,7 @@ public class ConfMessageAdapter extends BaseAdapter {
 		}
 
 		if (msg.getnFromUserID() == GlobalHolder.getInstance()
-				.getCurrentUserId()) {
+				.getLocalUserId()) {
 			viewHolder.tvLocalUserName.setText(getNameAccordingId(msg
 					.getnFromUserID()));
 			viewHolder.llRightChatLayout.setVisibility(View.VISIBLE);

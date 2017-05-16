@@ -2,8 +2,6 @@ package com.cinlan.xview.bean;
 
 import java.io.Serializable;
 
-import android.util.Log;
-
 import com.cinlan.xview.utils.GlobalHolder;
 
 /**
@@ -82,11 +80,11 @@ public class UserDevice implements Serializable, Comparable<UserDevice> {
 		if (another == null)
 			return 1;
 		if (this.user.getmUserId() == GlobalHolder.getInstance()
-				.getCurrentUserId()) {
+				.getLocalUserId()) {
 			return -1;
 		}
 		if (another.user.getmUserId() == GlobalHolder.getInstance()
-				.getCurrentUserId()) {
+				.getLocalUserId()) {
 			return 1;
 		}
 		return 0;

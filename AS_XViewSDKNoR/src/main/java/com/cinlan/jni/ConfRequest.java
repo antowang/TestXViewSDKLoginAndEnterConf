@@ -142,8 +142,16 @@ public class ConfRequest {
 
 	public native void getConfList();
 
+	/**
+	 * 申请
+	 * @param type
+	 */
 	public native void applyForControlPermission(int type);
 
+	/**
+	 * 没有说话的权限
+	 * @param type
+	 */
 	public native void releaseControlPermission(int type);
 
 	public native void grantPermission(long userid, int type, int status);

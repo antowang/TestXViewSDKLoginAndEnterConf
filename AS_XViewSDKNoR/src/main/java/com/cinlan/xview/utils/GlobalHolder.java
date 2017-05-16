@@ -31,7 +31,7 @@ public class GlobalHolder {
 	public static Context GlobalContext;
 	private static GlobalHolder holder = null;
 	private Conf mCurrentConf = null;
-	private User mCurrentUser = null;
+	private User mLocalUser = null;
 	private List<Conf> mConfs = new ArrayList<Conf>();
 	private List<ConfMessage> mMsgs = new ArrayList<ConfMessage>();
 	public Set<User> mUers = new HashSet<User>();
@@ -43,7 +43,7 @@ public class GlobalHolder {
 	/**
 	 * 包含已经打开的UserDevice的集合
 	 */
-	public static List<UserDevice> mOpenUers = new ArrayList<UserDevice>();
+	public static List<UserDevice> mOpenUerDevList = new ArrayList<UserDevice>();
 	public List<MediaEntity> mOpenMedia = new ArrayList<MediaEntity>();
 	public List<MediaEntity> list = new ArrayList<MediaEntity>();
 	public List<UserDevice> mOpenedSyncVideos = new ArrayList<UserDevice>();
@@ -64,7 +64,7 @@ public class GlobalHolder {
 	public static UserDevice currendUserDevice;
 
 	public List<UserDevice> getUserDevice() {
-		List<UserDevice> newDevice = new ArrayList<UserDevice>(userdevices);
+		List<UserDevice> newDevice = new ArrayList<>(userdevices);
 		Collections.sort(newDevice);
 		return newDevice;
 	}
@@ -222,7 +222,7 @@ public class GlobalHolder {
 
 	public synchronized ArrayList<UserDevice> getOpenUers() {
 		ArrayList<UserDevice> users = new ArrayList<UserDevice>();
-		users.addAll(mOpenUers);
+		users.addAll(mOpenUerDevList);
 		return users;
 	}
 
@@ -262,14 +262,14 @@ public class GlobalHolder {
 	}
 
 	public synchronized User getCurrentUser() {
-		return mCurrentUser;
+		return mLocalUser;
 	}
 
-	public synchronized long getCurrentUserId() {
-		if (mCurrentUser == null) {
+	public synchronized long getLocalUserId() {
+		if (mLocalUser == null) {
 			return 0;
 		} else {
-			return mCurrentUser.getmUserId();
+			return mLocalUser.getmUserId();
 		}
 	}
 
@@ -278,8 +278,8 @@ public class GlobalHolder {
 	 * 
 	 * @param mCurrentUser
 	 */
-	public synchronized void setCurrentUser(User mCurrentUser) {
-		this.mCurrentUser = mCurrentUser;
+	public synchronized void setLocalUser(User mCurrentUser) {
+		this.mLocalUser = mCurrentUser;
 	}
 
 	public int getUserCount() {
@@ -287,17 +287,17 @@ public class GlobalHolder {
 	}
 
 	public synchronized void addSelf() {
-		if (mUers.contains(mCurrentUser))
+		if (mUers.contains(mLocalUser))
 			return;
-		mUers.add(mCurrentUser);
-		saveIdNameUser(mCurrentUser.getmUserId(), mCurrentUser.getNickName());
+		mUers.add(mLocalUser);
+		saveIdNameUser(mLocalUser.getmUserId(), mLocalUser.getNickName());
 		currendUserDevice = new UserDevice();
 		VideoDevice device = new VideoDevice();
-		currendUserDevice.setUser(mCurrentUser);
+		currendUserDevice.setUser(mLocalUser);
 		currendUserDevice.setDevice(device);
-		device.setId(mCurrentUser.getmUserId() + ":Camera");
+		device.setId(mLocalUser.getmUserId() + ":Camera");
 		userdevices.add(currendUserDevice);
-		allUsers.add(mCurrentUser);
+		allUsers.add(mLocalUser);
 	}
 
 	public synchronized void removeDevice(Long userid) {
@@ -315,7 +315,7 @@ public class GlobalHolder {
 	public synchronized void removeOpendDevice(long userid, String deviceid) {
 		if ("".equals(deviceid) || null == deviceid)
 			return;
-		Iterator<UserDevice> sListIterator = mOpenUers.iterator();
+		Iterator<UserDevice> sListIterator = mOpenUerDevList.iterator();
 		while (sListIterator.hasNext()) {
 			UserDevice device = sListIterator.next();
 			if (device.getDevice() != null && device.getUser() != null
@@ -455,6 +455,7 @@ public class GlobalHolder {
 			 * Add VideoDevice.
 			 */
 			videodevices.put(userid, temp.getValue());
+			Log.d("sivin", "addDevice: "+userdevices.size());
 		}
 
 	}
@@ -608,8 +609,8 @@ public class GlobalHolder {
 	public static synchronized List<UserDevice> findHasOpenUserDevice(
 			long userid) {
 		List<UserDevice> users = new ArrayList<UserDevice>();
-		for (int i = 0; i < mOpenUers.size(); i++) {
-			UserDevice userDevice = mOpenUers.get(i);
+		for (int i = 0; i < mOpenUerDevList.size(); i++) {
+			UserDevice userDevice = mOpenUerDevList.get(i);
 			if (userDevice.getUser().getmUserId() == userid) {
 				users.add(userDevice);
 			}
@@ -620,10 +621,21 @@ public class GlobalHolder {
 	MediaEntity entity;
 	private static Map<User, Integer> userAvatar;
 
+
+	/**
+	 * 添加一个MediaDevice,如果没有就添加,有就不添加
+	 * @param mediaId
+	 * @param name
+	 * @param monitorIndex
+	 * @param mixerType
+	 * @param ownerID
+	 */
 	public synchronized void addMediaDevice(String mediaId, String name,
 			int monitorIndex, int mixerType, long ownerID) {
 		entity = new MediaEntity();
+
 		if (list.size() != 0) {
+
 			for (int i = 0; i < list.size(); i++) {
 				if (list.get(i).getMediaId().equals(mediaId)) {
 					return;
@@ -646,7 +658,7 @@ public class GlobalHolder {
 
 	}
 
-	public synchronized List<MediaEntity> getMediaDevice() {
+	public synchronized List<MediaEntity> getMediaEntityList() {
 		return list;
 	}
 

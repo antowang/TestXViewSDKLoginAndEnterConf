@@ -147,14 +147,14 @@ public class ChatActivity extends Activity {
 
 		ConfMessage confMessage = new ConfMessage();
 		confMessage.setnFromUserID(GlobalHolder.getInstance()
-				.getCurrentUserId());
+				.getLocalUserId());
 		confMessage.setnGroupID(GlobalHolder.getInstance().getmCurrentConf()
 				.getId());
 		confMessage.setText(msg);
 		long time = System.currentTimeMillis();
 		confMessage.setnTime(time);
 		confMessage.setnFromUserID(GlobalHolder.getInstance()
-				.getCurrentUserId());
+				.getLocalUserId());
 		confMessage.setnGroupID(curGroupId);
 		confMessage.setnLength(msg.length());
 		GlobalHolder.getInstance().addConfMessage(confMessage);
