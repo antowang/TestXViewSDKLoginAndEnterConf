@@ -668,7 +668,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		// params.height = PublicInfo.screenHeight / 3;
 		// params.width = PublicInfo.screenWidth / 3;
 		// video_content_main2.setLayoutParams(params);
-		// setPipLocation(false);
+		// setPipShow(false);
 		// return;
 		// }
 		if (PublicInfo.DEVICE_ORIENTATION == 0) {

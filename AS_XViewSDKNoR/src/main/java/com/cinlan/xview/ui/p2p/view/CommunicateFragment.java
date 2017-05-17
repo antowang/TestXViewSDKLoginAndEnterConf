@@ -1,10 +1,12 @@
 package com.cinlan.xview.ui.p2p.view;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.cinlan.jni.VideoRequest;
 import com.cinlan.xview.bean.Conf;
@@ -15,7 +17,7 @@ import com.cinlan.xview.msg.EventConfMsg;
 import com.cinlan.xview.msg.EventMsgType;
 import com.cinlan.xview.msg.MediaEntity;
 import com.cinlan.xview.ui.callback.VideoOpenListener;
-import com.cinlan.xview.ui.p2p.base.BaseCommunicateFragment;
+import com.cinlan.xview.ui.p2p.base.BaseCommunicateFragment2;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.VideoHelper;
 import com.cinlankeji.khb.iphone.R;
@@ -32,7 +34,7 @@ import java.util.Map;
  * Created by Sivin on 2017/5/11.
  */
 
-public class CommunicateFragment extends BaseCommunicateFragment implements VideoOpenListener {
+public class CommunicateFragment extends BaseCommunicateFragment2 implements VideoOpenListener {
 
     private static final String TAG = "CommunicateFragment";
 
@@ -57,8 +59,8 @@ public class CommunicateFragment extends BaseCommunicateFragment implements Vide
     private boolean mNoRemoteDevFull = true;
 
     @Override
-    protected FrameLayout getContentView(LayoutInflater inflater, ViewGroup container) {
-        return (FrameLayout) inflater.inflate(R.layout.fragment_communicate_layout, container, false);
+    protected RelativeLayout getContentView(LayoutInflater inflater, ViewGroup container) {
+        return (RelativeLayout) inflater.inflate(R.layout.fragment_communicate_layout, container, false);
     }
 
     @Override
@@ -84,17 +86,13 @@ public class CommunicateFragment extends BaseCommunicateFragment implements Vide
 
     private void tryToOpenHaveEnterMemberDev() {
         if (mUserDeviceList != null && mUserDeviceList.size() != 0) {
-//            for (UserDevice ud : mUserDeviceList) {
-//                openVideo(ud);
-//            }
-
-            for(int i = mUserDeviceList.size()-1;i>=0;i--){
-                openVideo(mUserDeviceList.get(i));
+            for (UserDevice ud : mUserDeviceList) {
+                openVideo(ud);
             }
+
 
         }
     }
-
 
 
     @Override
@@ -119,6 +117,8 @@ public class CommunicateFragment extends BaseCommunicateFragment implements Vide
                 * 都放到集合的最后一个
                 */
                 mUserDeviceList = GlobalHolder.getInstance().getUserDevice();
+
+                Log.e(TAG, "onNewUserEnter: ");
 
                 UserDevice ud = mUserDeviceList.get(mUserDeviceList.size() - 1);
                 openVideo(ud);
@@ -168,29 +168,23 @@ public class CommunicateFragment extends BaseCommunicateFragment implements Vide
         if (isLocal) {
 
             // 预览本地视频,如果只有本地一个视频就全屏显示
+            Log.e(TAG, "openVideo: " + mUserDeviceList.size());
             previewLocalVideo(surfaceView, mUserDeviceList.size() == 1);
         } else {
+
             if (mRemoteSurfaceViewList.get(user.getmUserId() + "") != null) {
                 return;
             }
             //当打开远端新的视频设备的时候,默认是第一个远端视频设备全屏显示
             //剩下的都是小视频显示
-            if(mNoRemoteDevFull){
-                setRemoteSurfaceViewFullScreen(surfaceView);
-                mNoRemoteDevFull = false;
-            } else{
-                //TODO:这个地方y值要处理,因为视频过来了要叠加处理叠加
-                setPipLocation(surfaceView,mScreenSize.x / 3 * 2, 0);
-            }
-
+            setRemoteSurface(surfaceView, mNoRemoteDevFull);
+            mNoRemoteDevFull = false;
             addCallbackForOtherSurface(surfaceView, user.getmUserId(), videoHelper);
 
             //TODO:以后要用到
             mRemoteSurfaceViewList.put(user.getmUserId() + "", surfaceView);
         }
-
     }
-
 
 
     @Override
