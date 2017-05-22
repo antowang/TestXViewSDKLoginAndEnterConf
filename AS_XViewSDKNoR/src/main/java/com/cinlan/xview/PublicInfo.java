@@ -149,7 +149,7 @@ public class PublicInfo {
 	/**
 	 * 高清
 	 */
-	public static String Support2Level = "";
+	public static String Support2Level = "720X1080";
 	/**
 	 * 标清
 	 */
@@ -212,13 +212,9 @@ public class PublicInfo {
 	private static ProgressDialog proDialog;
 	/**
 	 * 注销账号
-	 * 
 	 * @param context
 	 */
 	public static void logout(Context context) {
-//		proDialog = android.app.ProgressDialog.show(context, "",
-//				context.getResources().getString(R.string.logingout_xviewsdk));
-//		proDialog.show();
 		XviewLog.i(XTAG, "Logout");
 		ImRequest.getInstance().logout();
 	}

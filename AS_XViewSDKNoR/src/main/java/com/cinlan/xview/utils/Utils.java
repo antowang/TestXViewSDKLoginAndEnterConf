@@ -56,6 +56,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 
 import com.cinlan.jni.ImRequest;
+import com.cinlan.xview.widget.XViewAlertDialog;
 import com.cinlankeji.khb.iphone.R;
 
 
@@ -77,7 +78,7 @@ public class Utils {
 	}
 
 	public static void showQuitDialog(String content, final Context context) {
-		final com.cinlan.xview.widget.AlertDialog d = new com.cinlan.xview.widget.AlertDialog(
+		final XViewAlertDialog d = new XViewAlertDialog(
 				context)
 				.builder()
 				.setTitle("")

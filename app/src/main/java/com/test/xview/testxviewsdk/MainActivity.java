@@ -11,8 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.cinlan.xview.inter.IXVSDKCallback;
-import com.cinlan.xview.ui.EnterConf;
+import com.cinlan.xview.agent.ConfType;
+import com.cinlan.xview.inter.IXVCallback;
+import com.cinlan.xview.agent.XViewAgent;
 
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class MainActivity extends Activity {
     private Button btnDestroyConf;
 
     private Context mContext;
-    private EnterConf mEnterconf;
-    private IXVSDKCallback callbackListener;
+    private XViewAgent mXViewAgent;
+    private IXVCallback callbackListener;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -64,7 +65,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-        callbackListener = new IXVSDKCallback() {
+
+        callbackListener = new IXVCallback() {
 
             @Override
             public void onLogoutResultListener(int flag) {
@@ -169,7 +171,6 @@ public class MainActivity extends Activity {
                     Toast.makeText(mContext, "建会失败，错误代码:" + result,
                             Toast.LENGTH_LONG).show();
                 }
-
                 Log.i(TAG, "创建会议:" + result);
             }
 
@@ -191,11 +192,10 @@ public class MainActivity extends Activity {
                 }
                 Log.i(TAG, "销毁会议:" + result);
             }
-
         };
 
-        mEnterconf = EnterConf.getInstance(getApplicationContext(), callbackListener);
-
+        mXViewAgent = XViewAgent.getInstance(this);
+        mXViewAgent.registerXViewCallback(callbackListener);
         initView();
     }
 
@@ -229,20 +229,28 @@ public class MainActivity extends Activity {
                 if (!confIds.isEmpty()) {
                     confId = Long.parseLong(confIds);
                 }
+
+
+
                 if (nickName.isEmpty()) {
                     nickName = "游客";
                 }
+
+
                 final String confPwd = etConfPwd.getText().toString().trim();
                 final String userId = etUserId.getText().toString().trim();
 
-                final long finalConfId = confId;
+                final long finalConfId = 514945790574L;
                 final String finalNickName = nickName;
 
-                mEnterconf.loginXView(finalConfId, confPwd, finalNickName, userId);
+               // mXViewAgent.loginXView(finalConfId, confPwd, finalNickName, userId);
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        mEnterconf.loginXView(finalConfId, confPwd, finalNickName, userId);
+
+                        mXViewAgent.loginXView(mContext,finalConfId, confPwd, finalNickName, userId, ConfType.SINGLE);
+
                     }
                 }).start();
 
@@ -277,14 +285,15 @@ public class MainActivity extends Activity {
                 sParticipantPasswd = etNormalPwd.getText().toString().trim();
                 nStartTime = Long.parseLong(etStartTime.getText().toString().trim());
                 nEndTime = Long.parseLong(etEndTime.getText().toString().trim());
-                nMaxParticipant = Integer.parseInt(etMaxMember.getText().toString()
-                        .trim());
+                nMaxParticipant = Integer.parseInt(etMaxMember.getText().toString().trim());
 
-                mEnterconf.createConf(sSubject, nOrgID, sChairPasswd,
+                mXViewAgent.createConf(mContext,sSubject, nOrgID, sChairPasswd,
                         sParticipantPasswd, nStartTime, nEndTime,
                         nMaxParticipant);
             }
         });
+
+
 
         etDestroyConfId = (EditText) findViewById(R.id.etDestroyConfId);
         btnDestroyConf = (Button) findViewById(R.id.btnDestroyConf);
@@ -296,7 +305,7 @@ public class MainActivity extends Activity {
                 if (s.isEmpty())
                     return;
                 long confId = Long.parseLong(s);
-                mEnterconf.destroyConf(confId);
+                mXViewAgent.destroyConf(mContext,confId);
             }
         });
 
@@ -313,7 +322,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 String ip = etServerIP.getText().toString().trim();
                 String port = etServerPort.getText().toString().trim();
-                mEnterconf.setServer(ip, port);
+                mXViewAgent.setServer(mContext,ip, port);
                 Toast.makeText(mContext, "设置服务器地址:" + ip + "\n端口:" + port,
                         Toast.LENGTH_LONG).show();
             }

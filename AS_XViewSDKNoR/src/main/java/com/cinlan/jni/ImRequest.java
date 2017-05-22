@@ -4,7 +4,12 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cinlan.xview.msg.EventConfMsg;
+import com.cinlan.xview.msg.EventMsgType;
+import com.cinlan.xview.ui.p2p.view.PToPActivity;
 import com.cinlan.xview.utils.XviewLog;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class ImRequest {
 	private static ImRequest mImRequest;
@@ -114,8 +119,18 @@ public class ImRequest {
 
 	public native void logout();
 
+
+	/**
+	 * 事件接收实在{@link PToPActivity#onNativeCallback(com.cinlan.xview.msg.EventConfMsg)}
+	 * @param mStatus self:2,others:1;
+	 */
 	private void OnLogout(int mStatus) {
 		XviewLog.e("ImRequest UI", "OnXviewLogout:---" + mStatus);
+
+		/**
+		 * 发送消息到{@link PToPActivity#onNativeCallback(com.cinlan.xview.msg.EventConfMsg)}
+		 */
+		EventBus.getDefault().post(new EventConfMsg(EventMsgType.ON_USER_LOGOUT));
 
 		for (WeakReference<ImRequestCallback> wf : this.callbacks) {
 			Object obj = wf.get();

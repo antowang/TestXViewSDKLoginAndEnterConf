@@ -184,10 +184,15 @@ public class ConfRequest {
 			String szConfData, int nJoinResult) {
 		XviewLog.e("ImRequest UI", "OnEnterConf " + nConfID + "  " + pwd + " "
 				+ nTime + " " + szConfData + " " + nJoinResult);
-		for (WeakReference<ConfRequestCallback> wf : this.callbacks) {
-			Object obj = wf.get();
-			if (obj != null) {
 
+		Log.e("sivin", "OnEnterConf: "+callbacks.size());
+
+		for (WeakReference<ConfRequestCallback> wf : this.callbacks) {
+
+			Object obj = wf.get();
+			Log.e("sivin", "OnEnterConf: "+obj);
+			if (obj != null) {
+				Log.e("sivin", "OnEnterConf: kai shi fa song " );
 				ConfRequestCallback callback = (ConfRequestCallback) obj;
 				callback.OnEnterConfCallback(nConfID, nTime, szConfData,
 						nJoinResult);

@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/conf_micro_selector_xviewsdk" />
+            android:src="@drawable/conf_micro_fayan_selector_xviewsdk" />
 
 
         <ImageView

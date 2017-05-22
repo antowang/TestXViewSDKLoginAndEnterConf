@@ -6,7 +6,6 @@ import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -92,9 +91,8 @@ public abstract class BaseCommunicateFragment extends Fragment {
     private SurfaceView mToAmplifySurfaceView;
 
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = getContentView(inflater, container);
         init();
         return mRootView;

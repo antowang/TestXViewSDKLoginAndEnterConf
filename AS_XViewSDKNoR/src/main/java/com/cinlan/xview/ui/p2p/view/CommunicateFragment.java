@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.cinlan.core.RemotePlayerManger;
 import com.cinlan.jni.VideoRequest;
 import com.cinlan.xview.bean.Conf;
 import com.cinlan.xview.bean.User;
@@ -38,7 +38,7 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
 
     private static final String TAG = "CommunicateFragment";
 
-    private Map<String, SurfaceView> mRemoteSurfaceViewList = new HashMap<>();
+    private Map<String, SurfaceView> mSurfaceViewList = new HashMap<>();
 
 
     /**
@@ -57,6 +57,8 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
      * 记录已经有远端设备全屏了,新来的不用全屏了
      */
     private boolean mNoRemoteDevFull = true;
+
+
 
     @Override
     protected RelativeLayout getContentView(LayoutInflater inflater, ViewGroup container) {
@@ -89,15 +91,7 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
             for (UserDevice ud : mUserDeviceList) {
                 openVideo(ud);
             }
-
-
         }
-    }
-
-
-    @Override
-    public void closeVideo(UserDevice u) {
-
     }
 
 
@@ -127,6 +121,39 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
     }
 
 
+    @Override
+    public void closeVideo(UserDevice userDevice) {
+
+        //区分关闭的是远端视频还是本地视频
+
+
+        // 获取视频设备
+        VideoDevice device = userDevice.getDevice();
+
+        // 获取用户
+        User user = userDevice.getUser();
+        if (device == null || user == null)
+            return;
+
+        // 判断打开的是自己还是远程
+        boolean isLocal = user.getmUserId() == GlobalHolder.getInstance().getLocalUserId();
+
+        //如果本地关闭
+
+//        if()
+
+
+
+
+
+
+
+
+    }
+
+
+
+
     /**
      * 打开视频设备,调用这个方法的地方一共有两个地方,
      * 1:父类打开本地视频设备, 2:当有远程设备接入的时候由eventBus回调
@@ -150,7 +177,7 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
         boolean isLocal = user.getmUserId() == GlobalHolder.getInstance().getLocalUserId();
 
 
-        if (isLocal && mLocalVideoDevHasOpen) {  //集合中存放了本地视频设备,此处判断,避免重复打开
+        if (isLocal && mLocalHasOpen) {  //集合中存放了本地视频设备,此处判断,避免重复打开
             return;
         }
 
@@ -170,27 +197,26 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
             // 预览本地视频,如果只有本地一个视频就全屏显示
             Log.e(TAG, "openVideo: " + mUserDeviceList.size());
             previewLocalVideo(surfaceView, mUserDeviceList.size() == 1);
+
+            mSurfaceViewList.put(user.getmUserId() + "", surfaceView);
         } else {
 
-            if (mRemoteSurfaceViewList.get(user.getmUserId() + "") != null) {
+            if (mSurfaceViewList.get(user.getmUserId() + "") != null) {
                 return;
             }
             //当打开远端新的视频设备的时候,默认是第一个远端视频设备全屏显示
             //剩下的都是小视频显示
-            setRemoteSurface(surfaceView, mNoRemoteDevFull);
-            mNoRemoteDevFull = false;
             addCallbackForOtherSurface(surfaceView, user.getmUserId(), videoHelper);
 
+
+            setRemoteSurface(surfaceView, mNoRemoteDevFull);
+            mNoRemoteDevFull = false;
             //TODO:以后要用到
-            mRemoteSurfaceViewList.put(user.getmUserId() + "", surfaceView);
+            mSurfaceViewList.put(user.getmUserId() + "", surfaceView);
         }
     }
 
 
-    @Override
-    public void changeCamera(int i) {
-
-    }
 
     @Override
     public void applySetting(int width, int height, int videoFlow, int frameRate, int format, int requestedOrientation, boolean enabeleFrontCam) {
@@ -242,4 +268,14 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        for (String key: mSurfaceViewList.keySet()) {
+            mSurfaceViewList.get(key).getHolder();
+        }
+        mSurfaceViewList.clear();
+        RemotePlayerManger.getInstance().removeAllRemoteSurfaceView();
+    }
 }

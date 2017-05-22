@@ -6,10 +6,6 @@ package com.cinlan.xview.msg;
 
 public class EventConfMsg {
 
-
-
-
-
     private int msgType;
 
     public EventConfMsg(int msgType) {

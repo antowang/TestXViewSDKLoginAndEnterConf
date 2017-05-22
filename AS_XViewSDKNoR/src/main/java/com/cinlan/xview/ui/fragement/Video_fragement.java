@@ -56,15 +56,15 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	/**
 	 * 中间大布局
 	 */
-	private ColumnLayout video_content_main;
+	private ColumnLayout videoLargeLayout;
 	/**
 	 * 右上角的小布局
 	 */
-	private RelativeLayout video_content_main2;
+	private RelativeLayout videoSmallLayout;
 	/**
 	 * 整体的父布局
 	 */
-	private RelativeLayout video_content_main3;
+	private RelativeLayout videoRootView;
 	/**
 	 * 环境变量
 	 */
@@ -126,16 +126,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragement_video_xviewsdk,
-				container, false);
+		View view = inflater.inflate(R.layout.fragement_video_xviewsdk, container, false);
 
-		video_content_main = (ColumnLayout) view
-				.findViewById(R.id.video_content_main_xviewsdk);
-//		video_content_main.setMsetonSizeChangeListener(this);
-		video_content_main2 = (RelativeLayout) view
+		videoLargeLayout = (ColumnLayout) view.findViewById(R.id.video_content_main_xviewsdk);
+//		videoLargeLayout.setMsetonSizeChangeListener(this);
+		videoSmallLayout = (RelativeLayout) view
 				.findViewById(R.id.video_content_main2_xviewsdk);
-		video_content_main3 = (RelativeLayout) view
-				.findViewById(R.id.video_content_main3_xviewsdk);
+		videoRootView = (RelativeLayout) view.findViewById(R.id.video_content_main3_xviewsdk);
 
 		return view;
 	}
@@ -265,24 +262,24 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		// 从集合和布局中移除SurfaceView
 		mSurfaceViewList.remove(view);
 		opencache.remove(user.getmUserId());
-		video_content_main.removeView(view);
-		video_content_main2.removeView(view);
+		videoLargeLayout.removeView(view);
+		videoSmallLayout.removeView(view);
 		view.getHolder().getSurface().release();
 
 		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 根据横竖屏设置父布局尺寸
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 如果小布局里还有surface,移到大布局里
-			if (video_content_main2.getChildCount() > 0) {
+			if (videoSmallLayout.getChildCount() > 0) {
 				// 将小布局的surface取出放到大布局中并隐藏小布局
 				movePipToBigLayout();
 			}
 
 			// 设置大布局宽高为填充父布局
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 设置小布局宽高各为屏幕1/3大小,隐藏小布局
 			setPipLocation(true);
@@ -291,13 +288,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果打开过4路那么现在就要把布局2添加进来
-			if (video_content_main3.getChildCount() != 2) {
-				video_content_main3.addView(video_content_main2);
+			if (videoRootView.getChildCount() != 2) {
+				videoRootView.addView(videoSmallLayout);
 			}
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 设置小布局宽高为屏幕1/3大小,位置是右上角
 			setPipLocation(false);
@@ -312,14 +309,14 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			setLayoutClickable(true);
 
 			// 还是要手动调用一次点击切换画中画视频
-			video_content_main2.performClick();
+			videoSmallLayout.performClick();
 
 		} else if (mSurfaceViewList.size() == 3) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 设置父布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 画中画布局里的surface可点击
 			setSurfaceClickable(true);
@@ -332,7 +329,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 设置父布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 画中画布局里的surface可点击
 			setSurfaceClickable(true);
@@ -353,10 +350,10 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 * @param isClick
 	 */
 	private void setLayoutClickable(boolean isClick) {
-		video_content_main2.setClickable(isClick);
-		video_content_main.setClickable(isClick);
-		video_content_main2.setFocusable(isClick);
-		video_content_main.setFocusable(isClick);
+		videoSmallLayout.setClickable(isClick);
+		videoLargeLayout.setClickable(isClick);
+		videoSmallLayout.setFocusable(isClick);
+		videoLargeLayout.setFocusable(isClick);
 	}
 
 	/**
@@ -371,7 +368,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		PublicInfo.screenWidth = wm.getDefaultDisplay().getWidth();
 
 		// 每获取一次屏幕宽高就会重置子View
-		video_content_main.changeLayout();
+		videoLargeLayout.changeLayout();
 	}
 
 	/**
@@ -412,9 +409,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 					LayoutParams.MATCH_PARENT));
 
 			// 隐藏小布局，将本地摄像头视频添加到大布局中
-			if (video_content_main2 != null)
-				video_content_main2.setVisibility(View.GONE);
-			video_content_main.addView(view);
+			if (videoSmallLayout != null)
+				videoSmallLayout.setVisibility(View.GONE);
+			videoLargeLayout.addView(view);
 
 			// 监听已打开的本地的surface
 			addCallbackForLocalSurface(view);
@@ -430,7 +427,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			addCallbackForOtherSurface(mVideoHelper, (SurfaceView) view);
 
 			// 先将远端视频添加到大布局中
-			video_content_main.addView(view);
+			videoLargeLayout.addView(view);
 
 		}
 
@@ -443,20 +440,20 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 		} else if (mSurfaceViewList.size() == 2) { // 当前有2路视频的情况下
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果没有布局2就要把布局2添加进来
-			if (video_content_main3.getChildCount() != 2) {
-				video_content_main3.addView(video_content_main2);
+			if (videoRootView.getChildCount() != 2) {
+				videoRootView.addView(videoSmallLayout);
 			}
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 显示并设置小布局的位置为右上角,大小为屏幕宽高的1/3
 			setPipLocation(false);
@@ -473,8 +470,8 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 将视频从小布局取出来放到大布局里
 			movePipToBigLayout();
@@ -488,7 +485,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 设置父布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 设置所有视频为可点击
 			setSurfaceClickable(true);
@@ -499,10 +496,10 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			 * 4路视频时,video_content_main2会在右上角显示,隐藏不掉.<br>
 			 * 所以只能移除掉.
 			 */
-			video_content_main3.removeView(video_content_main2);
+			videoRootView.removeView(videoSmallLayout);
 		}
 
-		video_content_main2.setOnClickListener(new OnClickListener() {
+		videoSmallLayout.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -522,16 +519,16 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 					/**
 					 * 大布局和小布局交换视频,实际上就是关->开.
 					 */
-					View s2 = video_content_main2.getChildAt(0);
-					View s1 = video_content_main.getChildAt(0);
-					video_content_main2.removeAllViews();
-					video_content_main.removeAllViews();
-					video_content_main2.addView(s1);
-					video_content_main.addView(s2);
+					View s2 = videoSmallLayout.getChildAt(0);
+					View s1 = videoLargeLayout.getChildAt(0);
+					videoSmallLayout.removeAllViews();
+					videoLargeLayout.removeAllViews();
+					videoSmallLayout.addView(s1);
+					videoLargeLayout.addView(s2);
 
 					// 设置父布局和大布局为填充屏幕
-					setLayoutMatchParent(video_content_main3);
-					setLayoutMatchParent(video_content_main);
+					setLayoutMatchParent(videoRootView);
+					setLayoutMatchParent(videoLargeLayout);
 
 					isCanSwitchTwoSurfaceView = false;
 				}
@@ -555,11 +552,11 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		 * 否则新打开的视频会被覆盖看不见.
 		 */
 		if (mSurfaceViewList.size() == 2) {
-			video_content_main2.performClick();
+			videoSmallLayout.performClick();
 		}
 
 		opencache.put(device.getId(), mVideoHelper);
-		video_content_main.requestFocus();
+		videoLargeLayout.requestFocus();
 
 	}
 
@@ -567,20 +564,20 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 * 将小布局的surface取出放到大布局中并隐藏小布局
 	 */
 	private void movePipToBigLayout() {
-		View tempSV = video_content_main2.getChildAt(0);
+		View tempSV = videoSmallLayout.getChildAt(0);
 
-		video_content_main2.removeAllViews();
-		video_content_main2.setVisibility(View.GONE);
-		video_content_main.addView(tempSV);
+		videoSmallLayout.removeAllViews();
+		videoSmallLayout.setVisibility(View.GONE);
+		videoLargeLayout.addView(tempSV);
 	}
 
 	/**
 	 * 从大布局取出一路视频放到小布局中.
 	 */
 	private void movePipToSmallLayout() {
-		View s = video_content_main.getChildAt(1);
-		video_content_main.removeViewAt(1);
-		video_content_main2.addView(s);
+		View s = videoLargeLayout.getChildAt(1);
+		videoLargeLayout.removeViewAt(1);
+		videoSmallLayout.addView(s);
 	}
 
 	/**
@@ -589,9 +586,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 */
 	private void setPipLocation(boolean isHide) {
 		if (isHide)
-			video_content_main2.setVisibility(View.GONE);
+			videoSmallLayout.setVisibility(View.GONE);
 		else
-			video_content_main2.setVisibility(View.VISIBLE);
+			videoSmallLayout.setVisibility(View.VISIBLE);
 
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
 				PublicInfo.screenWidth / 3, PublicInfo.screenHeight / 3);
@@ -600,7 +597,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		params.width = PublicInfo.screenWidth / 3;
 		params.height = PublicInfo.screenHeight / 3;
 
-		video_content_main2.setLayoutParams(params);
+		videoSmallLayout.setLayoutParams(params);
 	}
 
 	/**
@@ -611,7 +608,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				PublicInfo.screenWidth / 3, PublicInfo.screenHeight / 3);
 		lp2.setMargins(PublicInfo.screenWidth / 3 * 2,
 				PublicInfo.screenHeight / 3, 0, 0);
-		video_content_main2.setLayoutParams(lp2);
+		videoSmallLayout.setLayoutParams(lp2);
 	}
 
 	/**
@@ -656,18 +653,18 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 	 */
 	private void calcSmallLayoutSize(boolean flag) {
 
-		LayoutParams params = video_content_main2.getLayoutParams();
+		LayoutParams params = videoSmallLayout.getLayoutParams();
 		// 获取是竖屏还是横屏
 		PublicInfo.DEVICE_ORIENTATION = SPUtil.getConfigIntValue(getActivity(),
 				"viewModePosition", 1);
-		SurfaceView s1 = (SurfaceView) video_content_main2.getChildAt(0);
+		SurfaceView s1 = (SurfaceView) videoSmallLayout.getChildAt(0);
 
 		getScreenWH();
 
 		// if (s1.getId() == 0x10001001) { // 本地摄像头
 		// params.height = PublicInfo.screenHeight / 3;
 		// params.width = PublicInfo.screenWidth / 3;
-		// video_content_main2.setLayoutParams(params);
+		// videoSmallLayout.setLayoutParams(params);
 		// setPipShow(false);
 		// return;
 		// }
@@ -688,13 +685,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 				params.width = PublicInfo.screenWidth / 3;
 			}
 		}
-		video_content_main2.setLayoutParams(params);
+		videoSmallLayout.setLayoutParams(params);
 
 		RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
 				params.width, params.height);
 		lp2.setMargins(PublicInfo.screenWidth - params.width, 0,
 				PublicInfo.screenWidth, params.height);
-		video_content_main2.setLayoutParams(lp2);
+		videoSmallLayout.setLayoutParams(lp2);
 
 		Canvas canvas = s1.getHolder().lockCanvas();
 		if (canvas != null) {
@@ -703,7 +700,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 
 			s1.getHolder().unlockCanvasAndPost(canvas);
 		}
-		video_content_main2.setGravity(Gravity.CENTER);
+		videoSmallLayout.setGravity(Gravity.CENTER);
 	}
 
 	private void addCallbackForOtherSurface(final VideoHelper mVideoHelper,
@@ -759,7 +756,6 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 
 	/**
 	 * 设置所有视频是否可点击
-	 * 
 	 * @param isClick
 	 */
 	private void setSurfaceClickable(boolean isClick) {
@@ -859,13 +855,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		opencache.clear();
 		mediacache.clear();
 
-		video_content_main.removeAllViews();
-		video_content_main2.removeAllViews();
-		video_content_main3.removeAllViews();
+		videoLargeLayout.removeAllViews();
+		videoSmallLayout.removeAllViews();
+		videoRootView.removeAllViews();
 
-		video_content_main = null;
-		video_content_main2 = null;
-		video_content_main3 = null;
+		videoLargeLayout = null;
+		videoSmallLayout = null;
+		videoRootView = null;
 
 		mSurfaceViewList = null;
 		devInfo = null;
@@ -895,27 +891,27 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		VideoRequest.getInstance().openVideoMixer(0, m.getMediaId(), mMediaHelper.getVideoPlayer(), false, m.getMixerType());
 
 		mSurfaceViewList.add(view);
-		video_content_main.addView(view);
+		videoLargeLayout.addView(view);
 
 		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 		}
 		if (mSurfaceViewList.size() == 2) {
 			// 设置一些状态
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果没有布局2就要把布局2添加进来
-			if (video_content_main3.getChildCount() != 2) {
-				video_content_main3.addView(video_content_main2);
+			if (videoRootView.getChildCount() != 2) {
+				videoRootView.addView(videoSmallLayout);
 			}
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 设置小布局的位置为右上角,宽高各为屏幕1/3大小
 			setPipLocation(false);
@@ -933,8 +929,8 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 将小布局的surface取出放到大布局中并隐藏小布局
 			movePipToBigLayout();
@@ -948,7 +944,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 设置父布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 设置已有的surface可点击
 			setSurfaceClickable(true);
@@ -962,9 +958,9 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			 * 4路视频时,video_content_main2会在右上角显示,隐藏不掉.<br>
 			 * 所以只能移除掉.
 			 */
-			video_content_main3.removeView(video_content_main2);
+			videoRootView.removeView(videoSmallLayout);
 		}
-		video_content_main2.setOnClickListener(new OnClickListener() {
+		videoSmallLayout.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -980,19 +976,17 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 					if (PublicInfo.isOpenedShareList) {
 						return;
 					}
-					SurfaceView s2 = (SurfaceView) video_content_main2
-							.getChildAt(0);
-					SurfaceView s1 = (SurfaceView) video_content_main
-							.getChildAt(0);
+					SurfaceView s2 = (SurfaceView) videoSmallLayout.getChildAt(0);
+					SurfaceView s1 = (SurfaceView) videoLargeLayout.getChildAt(0);
 
-					video_content_main2.removeAllViews();
-					video_content_main.removeAllViews();
-					video_content_main2.addView(s1);
-					video_content_main.addView(s2);
+					videoSmallLayout.removeAllViews();
+					videoLargeLayout.removeAllViews();
+					videoSmallLayout.addView(s1);
+					videoLargeLayout.addView(s2);
 
 					// 设置父布局和大布局为填充屏幕
-					setLayoutMatchParent(video_content_main3);
-					setLayoutMatchParent(video_content_main);
+					setLayoutMatchParent(videoRootView);
+					setLayoutMatchParent(videoLargeLayout);
 
 					isCanSwitchTwoSurfaceView = false;
 				}
@@ -1007,7 +1001,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			}
 		});
 		if (mSurfaceViewList.size() == 2) {
-			video_content_main2.performClick();
+			videoSmallLayout.performClick();
 		}
 		mediacache.put(m.getMediaId(), mMediaHelper);
 	}
@@ -1030,19 +1024,19 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 		SurfaceView view = mediaHelper.getView();
 		mSurfaceViewList.remove(view);
 		mediacache.remove(mediaId);
-		video_content_main.removeView(view);
-		video_content_main2.removeView(view);
+		videoLargeLayout.removeView(view);
+		videoSmallLayout.removeView(view);
 		view.getHolder().getSurface().release();
 
 		if (mSurfaceViewList.size() == 1) {
 			PublicInfo.OPENED_VIDEO_COUNT = 1;
 
 			// 设置父布局和大布局为填充屏幕
-			setLayoutMatchParent(video_content_main3);
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoRootView);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 如果小布局里还有视频就移到大布局里
-			if (video_content_main2.getChildCount() > 0) {
+			if (videoSmallLayout.getChildCount() > 0) {
 				movePipToBigLayout();
 			}
 
@@ -1053,15 +1047,15 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 2;
 
 			// 如果打开过4路那么现在就要把布局2添加进来
-			if (video_content_main3.getChildCount() != 2) {
-				video_content_main3.addView(video_content_main2);
+			if (videoRootView.getChildCount() != 2) {
+				videoRootView.addView(videoSmallLayout);
 			}
 
 			// 根据横竖屏设置父布局尺寸
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 设置大布局宽高为填充父布局
-			setLayoutMatchParent(video_content_main);
+			setLayoutMatchParent(videoLargeLayout);
 
 			// 设置小布局宽高各为屏幕1/3大小,位置为右上角
 			setPipLocation(false);
@@ -1075,13 +1069,13 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			// 设置大小布局可点击
 			setLayoutClickable(true);
 
-			video_content_main2.performClick();
+			videoSmallLayout.performClick();
 		} else if (mSurfaceViewList.size() == 3) {
 
 			PublicInfo.OPENED_VIDEO_COUNT = 3;
 
 			// 根据横竖屏设置父布局尺寸
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 画中画布局里的surface可点击
 			setSurfaceClickable(true);
@@ -1094,7 +1088,7 @@ public class Video_fragement extends Fragment implements VideoOpenListener,
 			PublicInfo.OPENED_VIDEO_COUNT = 4;
 
 			// 根据横竖屏设置父布局尺寸
-			setLayoutMatchParent(video_content_main3);
+			setLayoutMatchParent(videoRootView);
 
 			// 画中画布局里的surface可点击
 			setSurfaceClickable(true);

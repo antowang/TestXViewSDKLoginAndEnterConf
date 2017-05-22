@@ -1,8 +1,5 @@
 package com.cinlan.xview.ui.fragement;
 
-import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,6 +35,9 @@ import com.cinlan.xview.bean.data.RoundRect;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.widget.photoview.PhotoView;
 import com.cinlankeji.khb.iphone.R;
+
+import java.util.List;
+import java.util.Map;
 
 
 public class Fragment_Doc extends Fragment {

@@ -42,7 +42,6 @@ public class SPUtil {
 	 * zl:[帧率]<br>
 	 * videoFlow:[ 视频流量 ]<br>
 	 * viewModePosition:[1-垂直方向,0-水平方向]<br>
-	 * 
 	 * @param context
 	 * @param key
 	 * @param defaultVal

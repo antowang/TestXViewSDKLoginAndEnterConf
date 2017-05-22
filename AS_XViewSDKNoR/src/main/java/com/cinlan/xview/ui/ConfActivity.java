@@ -79,6 +79,7 @@ import com.cinlan.xview.utils.SPUtil;
 import com.cinlan.xview.utils.Utils;
 import com.cinlan.xview.utils.XviewLog;
 import com.cinlan.xview.widget.SlidingLayer;
+import com.cinlan.xview.widget.XViewAlertDialog;
 import com.cinlankeji.khb.iphone.R;
 
 /**
@@ -476,6 +477,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 
 		// 获取音频模式
 		lastmode = mAudioManager.getMode();
+
 		// 获取当前Conf
 		mConf = (Conf) getIntent().getSerializableExtra("conf");
 
@@ -509,7 +511,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 
 		XviewLog.i(XTAG, " onGetUserListListener = " + users.size());
 
-		EnterConf.mIOnXViewCallback.onGetUserListListener(users);
+	//	XViewAgent.mIOnXViewCallback.onGetUserListListener(users);
 
 		//获取视频碎片实例
 		videoFragement = Video_fragement.newInstance();
@@ -730,7 +732,6 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 
 	/**
 	 * 设置麦克风为开或关.
-	 * 
 	 * @param lounder
 	 */
 	private void setSpeakLounder(boolean lounder) {
@@ -901,7 +902,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 				/**
 				 * 退出会议
 				 */
-				final com.cinlan.xview.widget.AlertDialog d = new com.cinlan.xview.widget.AlertDialog(
+				final XViewAlertDialog d = new XViewAlertDialog(
 						ConfActivity.this)
 						.builder()
 						.setTitle(
@@ -1779,7 +1780,6 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 
 	/**
 	 * 初始化视频编码弹窗-分辨率
-	 * 
 	 * @param parent
 	 */
 	private void initVideoCodePopupWindow(View parent) {
@@ -2365,7 +2365,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 			return;
 		}
 
-		final com.cinlan.xview.widget.AlertDialog d = new com.cinlan.xview.widget.AlertDialog(
+		final XViewAlertDialog d = new XViewAlertDialog(
 				ConfActivity.this)
 				.builder()
 				.setTitle(getResources().getString(R.string.hint_xviewsdk))
@@ -2375,8 +2375,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 						new OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								boolean isEnterConf = SPUtil.getConfigBoolean(
-										mContext, "islockconf", false);
+								boolean isEnterConf = SPUtil.getConfigBoolean(mContext, "islockconf", false);
 								if (PublicInfo.isAnonymousLogin || isEnterConf) {
 									PublicInfo.logout(mContext);
 									ConfActivity.this.finish();
@@ -2426,7 +2425,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 						getResources()
 								.getString(R.string.kickoff_conf_xviewsdk),
 						Toast.LENGTH_SHORT).show();
-				EnterConf.mIOnXViewCallback.onConfMsgListener(1);
+			//	XViewAgent.mIOnXViewCallback.onConfMsgListener(1);
 				PublicInfo.logout(mContext);
 				XviewLog.i(XTAG, " MsgType.KICK_CONF  receiveBroadcast end");
 				break;
@@ -2463,8 +2462,8 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 				XviewLog.i(XTAG, " MEMBER_ENTER - userid = " + GlobalHolder.EnterMemberUserId);
 				XviewLog.i(XTAG, " MEMBER_ENTER - name = " + GlobalHolder.EnterMemberUserNickName);
 				XviewLog.i(XTAG, " MEMBER_ENTER - name = " + GlobalHolder.EnterMemberUserData);
-				EnterConf.mIOnXViewCallback.onMemberEnterListener(GlobalHolder.EnterMemberUserId,
-						GlobalHolder.EnterMemberUserNickName, GlobalHolder.EnterMemberUserData);
+//				XViewAgent.mIOnXViewCallback.onMemberEnterListener(GlobalHolder.EnterMemberUserId,
+//						GlobalHolder.EnterMemberUserNickName, GlobalHolder.EnterMemberUserData);
 				XviewLog.i(XTAG, " MsgType.MEMBER_ENTER  receiveBroadcast end");
 
 
@@ -2578,7 +2577,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 				break;
 			case MsgType.VIDEOREMOTE_SETTING_COME: // PC远程设置移动端参数
 
-				XviewLog.i(XTAG, " MsgType.VIDEOREMOTE_SETTING_COME  receiveBroadcast success");
+				XviewLog.i(XTAG, " MsgType.VIDEO_REMOTE_SETTING_COME  receiveBroadcast success");
 
 				Bundle data = intent.getExtras();
 				String dev = data.getString("dev", "");
@@ -2693,7 +2692,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 								+ "\n" + bps + "Kbps\n" + fps + "fps",
 						Toast.LENGTH_LONG).show();
 				saveAndApplySetting();
-				XviewLog.i(XTAG, " MsgType.VIDEOREMOTE_SETTING_COME  receiveBroadcast end");
+				XviewLog.i(XTAG, " MsgType.VIDEO_REMOTE_SETTING_COME  receiveBroadcast end");
 				break;
 			// 申请回应
 			case MsgType.PERIMSSTYPE:
@@ -2727,13 +2726,15 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 				XviewLog.i(XTAG, " MEMBER_EXIT - name = " + name);
 				XviewLog.i(XTAG, " MEMBER_EXIT - email = " + email);
 
-				EnterConf.mIOnXViewCallback.onMemberExitListener(userid, (name.isEmpty() ? "" : name), email);
 
-				if (EnterConf.mIOnXViewCallback == null) {
-					XviewLog.i(XTAG, " MEMBER_EXIT callback is null");
-				} else {
-					XviewLog.i(XTAG, " MEMBER_EXIT callback not null");
-				}
+
+//				if (XViewAgent.mIOnXViewCallback == null) {
+//					XviewLog.i(XTAG, " MEMBER_EXIT callback is null");
+//				} else {
+//					XviewLog.i(XTAG, " MEMBER_EXIT callback not null");
+//				}
+
+
 				if (name != null)
 					Toast.makeText(
 							context,
@@ -2862,9 +2863,7 @@ public class ConfActivity extends FragmentActivity implements OnsetHomeListener,
 
 	/**
 	 * 耳机广播接收器
-	 * 
 	 * @author Hello
-	 * 
 	 */
 	class ErjiReceiver extends BroadcastReceiver {
 		@Override

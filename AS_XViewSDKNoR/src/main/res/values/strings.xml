@@ -136,6 +136,7 @@
     <string name="login_success_xviewsdk">登录成功</string>
     <string name="content_not_empty_xviewsdk">内容不能为空</string>
     <string name="isExit_xviewsdk">是否退出会议?</string>
+    <string name="isHangup_xviewsdk">结束通话?</string>
     <string name="onecamera_xviewsdk">只有一个摄像头，不能切换</string>
     <string name="change_camera_fast_xviewsdk">slowly~~</string>
     <string name="wb_xviewsdk">白板</string>

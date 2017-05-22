@@ -1,14 +1,14 @@
 package com.cinlan.xview.ui.p2p.base;
 
 import android.app.Fragment;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -52,7 +52,7 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
     private List<String> mAppSupportResolutionList = new ArrayList<>();
 
 
-    protected boolean mLocalVideoDevHasOpen = false;
+    protected boolean mLocalHasOpen = false;
 
     /**
      * 记录屏幕尺寸
@@ -82,9 +82,15 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
     private RelativeLayout mSmallFrameLayout;
 
 
-    @Nullable
+    private VideoCaptureDevInfo mDevInfo;
+
+    /**
+     * 记录当前摄像头是前置摄像头还是后置摄像头
+     */
+    private int mCameraToward;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = getContentView(inflater, container);
         init();
         return mRootView;
@@ -96,12 +102,12 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
 
         mFullFrameLayout = (RelativeLayout) mRootView.findViewById(R.id.full_view);
         mSmallFrameLayout = (RelativeLayout) mRootView.findViewById(R.id.small_view);
-
+        mSmallFrameLayout.setTranslationX(mScreenSize.x / 3 * 2);
         mSmallFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "开始切换视频", Toast.LENGTH_SHORT).show();
-                switchLayout();
+                if (mCurrentSamllView != null)
+                    switchLayout();
             }
         });
 
@@ -129,17 +135,17 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
 
         PublicInfo.DEVICE_ORIENTATION = orientation;
 
-        VideoCaptureDevInfo devInfo = VideoCaptureDevInfo.CreateVideoCaptureDevInfo();
-        List<VideoCaptureDevInfo.VideoCaptureDevice> deviceList = devInfo.deviceList;
+        mDevInfo = VideoCaptureDevInfo.CreateVideoCaptureDevInfo();
+        List<VideoCaptureDevInfo.VideoCaptureDevice> deviceList = mDevInfo.deviceList;
 
         if (deviceList == null || deviceList.size() == 0) return;
 
         initLocalSupport();
 
         // 摄像头朝向
-        int camera = SPUtil.getConfigIntValue(getActivity(), "camera", 0);
+        mCameraToward = SPUtil.getConfigIntValue(getActivity(), "camera", 0);
         // 码率
-        int malv = SPUtil.getConfigIntValue(getActivity(), "ml", 70 * 1024);
+        int malv = SPUtil.getConfigIntValue(getActivity(), "ml", 800 * 1024);
         // 帧率
         int zelv = SPUtil.getConfigIntValue(getActivity(), "zl", 15);
         // 分辨率
@@ -162,7 +168,7 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
             VideoRequest.getInstance().setDefaultVideoDev(deviceList.get(0).deviceUniqueName);
 
             // 设置默认的设备名称
-            devInfo.SetDefaultDevName(devInfo.deviceList.get(0).deviceUniqueName);
+            mDevInfo.SetDefaultDevName(mDevInfo.deviceList.get(0).deviceUniqueName);
             // 设置采集参数
             LocaSurfaceView.VideoConfig config = LocaSurfaceView.getInstance().getVideoConfig();
 
@@ -171,7 +177,7 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
             config.videoBitRate = malv;
             config.videoFrameRate = zelv;
             config.videoMaxKeyframeInterval = zelv * 2;
-            config.enabeleFrontCam = camera == 0;
+            config.enabeleFrontCam = mCameraToward == 0;
             LocaSurfaceView.getInstance().setVideoConfig(config);
 
             //TODO:保存这个值干啥的?
@@ -207,14 +213,16 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
      * @param isFullScreen 是否是全屏显示
      */
     protected void previewLocalVideo(SurfaceView surfaceView, boolean isFullScreen) {
-
         Log.e(TAG, "previewLocalVideo: " + isFullScreen);
 
-        mLocalVideoDevHasOpen = true;
+        mLocalHasOpen = true;
+
         if (isFullScreen)
             setSurfaceFull(surfaceView);
-        else
-            setPipShow(surfaceView);
+        else{
+            mCurrentSamllView = surfaceView;
+        }
+
 
         // 监听已打开的本地的surface
         addCallbackForLocalSurface(surfaceView);
@@ -231,25 +239,27 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         surfaceView.setLayoutParams(params);
 
+        Log.e(TAG, "setSurfaceFull: "+"add full" );
         mFullFrameLayout.addView(surfaceView);
         mCurrentFullView = surfaceView;
     }
 
     /**
      * 设置surfaceView画中画显示
-     *
      * @param surfaceView surfaceView
      */
-    protected void setPipShow(SurfaceView surfaceView) {
+    private void setPipShow(SurfaceView surfaceView) {
         FrameLayout.LayoutParams params =
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.width = mScreenSize.x / 3;
         params.height = mScreenSize.y / 3;
+
         surfaceView.setLayoutParams(params);
 
+
         mSmallFrameLayout.addView(surfaceView);
-        mSmallFrameLayout.setTranslationX(mScreenSize.x / 3 * 2);
         mCurrentSamllView = surfaceView;
+
     }
 
 
@@ -261,11 +271,22 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
                 switchLayout();
                 setSurfaceFull(surfaceView);
             } else {
+                Log.e(TAG, "setRemoteSurface: 没有全屏视图" );
                 //直接添加到大屏里
-                setSurfaceFull(surfaceView);
-            }
-        } else { //远端视频添加到小屏容器里
 
+                setSurfaceFull(surfaceView);
+
+
+                mCurrentSamllView.setZOrderOnTop(true);
+                mCurrentSamllView.setZOrderMediaOverlay(true);
+
+                setPipShow(mCurrentSamllView);
+
+
+            }
+        } else {
+
+            //TODO:多路小视频过来如何操作
         }
     }
 
@@ -274,22 +295,42 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
      * 大小屏切换
      */
     private void switchLayout() {
-        SurfaceView fullView = null;
 
 
-        if (mFullFrameLayout.getChildCount() > 0) {
-            fullView = (SurfaceView) mFullFrameLayout.getChildAt(0);
-            mFullFrameLayout.removeViewAt(0);
-        }
+
         SurfaceView smallView = null;
         if (mSmallFrameLayout.getChildCount() > 0) {
             smallView = (SurfaceView) mSmallFrameLayout.getChildAt(0);
             mSmallFrameLayout.removeViewAt(0);
         }
-        if (fullView != null)
-            setPipShow(fullView);
-        if (smallView != null)
+
+
+        if (smallView != null){
+            smallView.setZOrderOnTop(false);
             setSurfaceFull(smallView);
+        }
+
+
+
+
+        SurfaceView fullView = null;
+
+        if (mFullFrameLayout.getChildCount() > 0) {
+
+            fullView = (SurfaceView) mFullFrameLayout.getChildAt(0);
+
+            mFullFrameLayout.removeViewAt(0);
+        }
+
+
+
+        if (fullView != null){
+
+            fullView.setZOrderOnTop(true);
+            fullView.setZOrderMediaOverlay(true);
+            setPipShow(fullView);
+        }
+
     }
 
 
@@ -332,6 +373,62 @@ public abstract class BaseCommunicateFragment2 extends Fragment {
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
+        mFullFrameLayout.removeAllViews();
+        mSmallFrameLayout.removeAllViews();
+
+        GlobalHolder.mOpenUerDevList.clear();
+        GlobalHolder.getInstance().mOpenMedia.clear();
+        GlobalHolder.getInstance().userdevices.clear();
+        GlobalHolder.videodevices.clear();
+
         super.onDestroy();
     }
+
+
+    public void changeCamera(int camera) {
+
+        // 后面添加一个 ":Camera"不知道是什么,目前解释是固定格式:
+        String deviceId = GlobalHolder.getInstance().getLocalUserId() + ":Camera";
+        // 摄像头状态
+        int cameraStatus = SPUtil.getConfigIntValue(getActivity(), "local", 0);
+
+        switch (camera) {
+            case 2:  //前后摄像头切换
+                if (cameraStatus == 1
+                        && mDevInfo != null
+                        && mDevInfo.deviceList != null
+                        && mDevInfo.deviceList.size() == 1) {
+                    // 只有一个摄像头，不能切换
+                    Toast.makeText(getActivity(), R.string.onecamera_xviewsdk, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (mCameraToward == 0) {
+                    SPUtil.putConfigIntValue(getActivity(), "camera", 1);
+                    mCameraToward = 1;
+                } else {
+                    SPUtil.putConfigIntValue(getActivity(), "camera", 0);
+                    mCameraToward = 0;
+                }
+
+                LocaSurfaceView.VideoConfig config = LocaSurfaceView.getInstance().getVideoConfig();
+                config.enabeleFrontCam = !config.enabeleFrontCam;
+                LocaSurfaceView.getInstance().setVideoConfig(config);
+                break;
+
+            case 3: //禁用摄像头
+                VideoRequest.getInstance().setVideoDevDisable(deviceId, true);
+                SPUtil.putConfigIntValue(getActivity(), "local", 4);
+                break;
+
+            case 4://打开摄像头
+                VideoRequest.getInstance().setVideoDevDisable(deviceId, false);
+                SPUtil.putConfigIntValue(getActivity(), "local", 1);
+                break;
+
+
+        }
+
+    }
+
 }

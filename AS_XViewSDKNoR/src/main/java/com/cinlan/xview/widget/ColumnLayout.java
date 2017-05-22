@@ -267,8 +267,7 @@ public class ColumnLayout extends RelativeLayout implements OnClickListener {
 
 			} else { // 其余的View都设置宽高1/3
 				View childView = getChildAt(i);
-				LayoutParams params = (LayoutParams) childView
-						.getLayoutParams();
+				LayoutParams params = (LayoutParams) childView.getLayoutParams();
 				params.height = screenHeight / 3;
 				params.width = screenWidth / 3;
 

@@ -1,16 +1,15 @@
 package com.cinlan.xview.ui.p2p.base;
 
+import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-
 import com.cinlan.core.CaptureCapability;
 import com.cinlan.core.VideoCaptureDevInfo;
 import com.cinlan.xview.PublicInfo;
+import com.cinlan.xview.framework.BaseActivity;
 import com.cinlan.xview.utils.XviewLog;
-
+import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ import java.util.List;
  * Created by sivin on 2017/5/11.
  */
 
-public abstract class BaseConfActivity extends AppCompatActivity {
+public abstract class BaseConfActivity extends BaseActivity {
 
     private static final String TAG = BaseConfActivity.class.getSimpleName();
 
@@ -48,9 +47,11 @@ public abstract class BaseConfActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
+        EventBus.getDefault().register(this);
+
         //TODO:是否需要将activity加入堆栈中,这个操作是否有必要
         initAudioManager();
         initVideoDevList();
@@ -100,6 +101,7 @@ public abstract class BaseConfActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
         resetAudioManager();
         super.onDestroy();
     }

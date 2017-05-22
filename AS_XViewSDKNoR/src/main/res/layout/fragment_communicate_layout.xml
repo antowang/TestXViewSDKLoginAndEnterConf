@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:id="@+id/full_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 
+    <RelativeLayout
+        android:id="@+id/small_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 
 
-</FrameLayout>
+</RelativeLayout>

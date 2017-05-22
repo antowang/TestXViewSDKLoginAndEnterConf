@@ -1,8 +1,6 @@
 package com.cinlan.xview.receiver;
 
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,7 +8,7 @@ import android.content.Intent;
 import android.view.WindowManager;
 
 import com.cinlan.xview.PublicInfo;
-import com.cinlan.xview.ui.EnterConf;
+import com.cinlan.xview.msg.MsgType;
 import com.cinlan.xview.utils.ActivityHolder;
 import com.cinlan.xview.utils.SPUtil;
 import com.cinlan.xview.utils.XviewLog;
@@ -22,9 +20,9 @@ public class ForceOfflineReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(final Context context, Intent intent) {
-		int logoutFlag = intent.getIntExtra("logoutFlag", -1);
+		int logoutFlag = intent.getIntExtra("msgtype", -1);
 		XviewLog.i(XTAG, "logoutFlag = " + logoutFlag);
-		if (logoutFlag == 1) {
+		if (logoutFlag == MsgType.LOGOUT_OTHER) {
 			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
 			dialogBuilder.setTitle("Warning");
 			dialogBuilder.setMessage(context.getResources().getString(
@@ -45,17 +43,17 @@ public class ForceOfflineReceiver extends BroadcastReceiver {
 			alertDialog.getWindow().setType(
 					WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 			alertDialog.show();
-			EnterConf.mIOnXViewCallback.onConfMsgListener(2);
+			//XViewAgent.mIOnXViewCallback.onConfMsgListener(2);
 		}
-		if (logoutFlag == 2) {
-			if (EnterConf.mIOnXViewCallback != null)
-				EnterConf.mIOnXViewCallback.onConfMsgListener(3);
+		if (logoutFlag == MsgType.LOGOUT_SELF) {
+//			if (XViewAgent.mIOnXViewCallback != null)
+//				XViewAgent.mIOnXViewCallback.onConfMsgListener(3);
 			PublicInfo.dismissDialog();
 			ActivityHolder.getInstance().finishAllActivity();
 
 			if (PublicInfo.logoutFlag == 1) {
 				XviewLog.i(XTAG, " OnLogoutCallback logoutFlag = 1");
-				EnterConf.mIOnXViewCallback.onLogoutResultListener(1);
+//				XViewAgent.mIOnXViewCallback.onLogoutResultListener(1);
 				XviewLog.i(XTAG, " OnLogoutCallback callback success");
 			}
 			XviewLog.i(XTAG, " logoutFlag = 2 over");

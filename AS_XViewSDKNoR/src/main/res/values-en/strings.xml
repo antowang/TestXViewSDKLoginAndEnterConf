@@ -135,6 +135,7 @@
     <string name="login_success_xviewsdk">Login success</string>
     <string name="content_not_empty_xviewsdk">Content can not be empty</string>
     <string name="isExit_xviewsdk">Whether to withdraw from the meeting?</string>
+    <string name="isHangup_xviewsdk">Whether to hang up?</string>
     <string name="onecamera_xviewsdk">Only one camera,can not be switched</string>
     <string name="change_camera_fast_xviewsdk">slowly~~</string>
     <string name="wb_xviewsdk">Whiteboard</string>

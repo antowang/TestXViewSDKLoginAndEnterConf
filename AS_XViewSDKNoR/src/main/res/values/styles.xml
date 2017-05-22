@@ -3,11 +3,11 @@
     <style name="xviewstyle_xviewsdk" parent="@android:style/Theme.NoTitleBar.Fullscreen"></style>
 
 
-    <style name="activity_full_style" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-    </style>
+    <!--<style name="activity_full_style" parent="Theme.AppCompat.Light.NoActionBar">-->
+        <!--<item name="android:windowFullscreen">true</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
+        <!--<item name="windowActionBar">false</item>-->
+    <!--</style>-->
 
     <style name="AlertDialogStyle_xviewsdk" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
