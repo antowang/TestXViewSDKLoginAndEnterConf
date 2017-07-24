@@ -11,8 +11,6 @@ import com.cinlan.xview.utils.GlobalConfig;
 
 public class LoginService extends AbstractHandler {
 
-	private static final int JNI_REQUEST_LOG_IN = 1;
-
 	private ImRequestCB imCB = null;
 
 	public LoginService() {

@@ -42,6 +42,7 @@ import com.cinlan.xview.inter.IXVCallback;
 import com.cinlan.xview.msg.EnterConfType;
 import com.cinlan.xview.msg.MsgType;
 import com.cinlan.xview.receiver.ForceOfflineReceiver;
+import com.cinlan.xview.service.AbstractHandler;
 import com.cinlan.xview.service.JNIResponse;
 import com.cinlan.xview.service.JNIService;
 import com.cinlan.xview.service.LoginService;
@@ -58,6 +59,17 @@ import com.cinlan.xview.utils.XviewLog;
 import static com.cinlan.xview.inter.IXVCallback.IXCALLBACK;
 
 public class XViewAgent {
+    public enum LoginEnterConfState
+    {
+        UNKNOWN_STATE,
+        LOGINNING_STATE,
+        LOGINED_STATE,
+        LOGOUTING_STATE,
+        LOGOUTED_STATE,
+        ENTERING_CONF_STATE,
+        ENTERED_CONF_STATE,
+    };
+
 
     private static String TAG = "xview";
 
@@ -98,10 +110,6 @@ public class XViewAgent {
     // 登录请求接口回调
     private LoginService mLoginService = new LoginService();
 
-    // 是否正在用户登录
-    private Boolean isOnLogin = false;
-
-
     // 服务器地址
     private String ip = PublicInfo.XVIEW_SERVER;
     // 服务器端口
@@ -134,6 +142,7 @@ public class XViewAgent {
 
 
     private static XViewAgent mEnterConf = null;
+    public LoginEnterConfState mLoginState = LoginEnterConfState.UNKNOWN_STATE;
 
 
     private Handler confListHandler = new Handler(Looper.getMainLooper()) {
@@ -141,15 +150,19 @@ public class XViewAgent {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case LOG_IN_CALL_BACK:
-                    isOnLogin = false;
                     XviewLog.i(TAG, "" + Thread.currentThread().getId() + ", " + Thread.currentThread().getName());
                     JNIResponse rlr = (JNIResponse) msg.obj;
+                    mLoginState = LoginEnterConfState.LOGOUTING_STATE;
                     /**
                      * 登录反馈
                      */
                     if (rlr.getResult() == JNIResponse.Result.TIME_OUT) {
                         mIXViewCallback.onLoginResultListener(1);
                         XviewLog.i(TAG, " login TIME_OUT");
+                        ImRequest.getInstance().logout();
+                    } else if (rlr.getResult() == JNIResponse.Result.ENTER_CONF_TIME_OUT) {
+                        mIXViewCallback.onEnterConfListener(3);
+                        XviewLog.i(TAG, " enter conf TIME_OUT");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.FAILED) {
                         mIXViewCallback.onLoginResultListener(2);
@@ -172,20 +185,15 @@ public class XViewAgent {
                         XviewLog.i(TAG, " login UNKNOWN");
                         ImRequest.getInstance().logout();
                     } else {
-
+                        mLoginState = LoginEnterConfState.LOGINED_STATE;
                         mIXViewCallback.onLoginResultListener(5);
                         XviewLog.i(TAG, " login success");
 
                         User user = ((RequestLogInResponse) rlr).getUser();
                         user.setNickName(nickName);
-
-
-
                         GlobalHolder.getInstance().setLocalUser(user);
 
-
                         PublicInfo.isAnonymousLogin = true;
-
                         if (PublicInfo.isAnonymousLogin) {
                             PublicInfo.confListRefreshHandler = confListHandler;
                             initReceiver();
@@ -193,11 +201,12 @@ public class XViewAgent {
                             new Thread(thread).start();
                         }
                     }
-                    isOnLogin = false;
                     break;
                 case PublicInfo.FLAG_ANONYMOUS_LOGIN:
-                    //XviewLog.i(TAG, "start enter");
-                    Log.e("sivin", "EnterConf start");
+                    mLoginState = LoginEnterConfState.ENTERING_CONF_STATE;
+                    XviewLog.i(TAG, "start enter");
+                    Log.e("sivin", "start enter");
+                    mLoginService.initTimeoutMessage(AbstractHandler.JNI_REQUEST_ENTER_CONF, AbstractHandler.DEFAULT_TIME_OUT_SECS, caller);
                     ConfRequest.getInstance().enterConf(confId, confPwd);
                     break;
                 case PublicInfo.UNREGIStER_RECEIVER:
@@ -575,16 +584,15 @@ public class XViewAgent {
     private void loginUP() {
         // 真正的设置服务器入口
         mConfigRequest.setServerAddress(ip, Integer.parseInt(port));
-        synchronized (isOnLogin) {
-            if (isOnLogin) {
-                XviewLog.i(TAG, " isOnLogin");
-                return;
-            }
-            isOnLogin = true;
-            XviewLog.i(TAG, "start login ...");
-            // 真正的登录入口
-            mLoginService.login(mUserData, "", caller, 1, nickName);
+        XviewLog.i(TAG, "start login ...");
+        // 真正的登录入口
+        if (mLoginState != LoginEnterConfState.UNKNOWN_STATE &&
+            mLoginState != LoginEnterConfState.LOGOUTED_STATE) {
+            //Log.e("sivin", "cannot be login");
+            return;
         }
+        mLoginState = LoginEnterConfState.LOGINNING_STATE;
+        mLoginService.login(mUserData, "", caller, 1, nickName);
     }
 
     /**
@@ -816,8 +824,8 @@ public class XViewAgent {
                     long confid = entertype.getnConfID();
 
                     if (getnJoinResult == 0) {
-
-
+                        mLoginState = LoginEnterConfState.ENTERED_CONF_STATE;
+                        mLoginService.removeTimeoutMessage(AbstractHandler.JNI_REQUEST_ENTER_CONF);
                         //TODO:进入会议回调,2代表的是什么?
                         mIXViewCallback.onEnterConfListener(2);
                         XviewLog.i(TAG, " enter confRequest result code = " + getnJoinResult);
@@ -841,12 +849,10 @@ public class XViewAgent {
                         }
                         confintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         confintent.putExtra("conf", parserOnEnterConf);
-
                         //启动activity
                         context.startActivity(confintent);
 
                     } else {
-
                         mIXViewCallback.onEnterConfListener(3);
                         Log.i(TAG, " enter confRequest result code = " + getnJoinResult);
 
@@ -855,6 +861,7 @@ public class XViewAgent {
                             PublicInfo.AnonymousLoginState = 1;
                         }
 
+                        mLoginState = LoginEnterConfState.LOGOUTING_STATE;
                         ImRequest.getInstance().logout();
                     }
                     break;
@@ -879,13 +886,12 @@ public class XViewAgent {
                     break;
 
                 case MsgType.LOGOUT_SELF:
-
-
+                    mLoginState = LoginEnterConfState.LOGOUTED_STATE;
                     mIXViewCallback.onLogoutResultListener(1);
                     Log.i(TAG, "self logout");
-
                     break;
                 case MsgType.LOGOUT_OTHER:
+                    mLoginState = LoginEnterConfState.LOGOUTED_STATE;
                     Log.i(TAG, "force logout ");
                     mIXViewCallback.onLogoutResultListener(3);
                     break;

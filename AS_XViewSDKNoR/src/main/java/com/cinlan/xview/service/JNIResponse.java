@@ -9,7 +9,7 @@ package com.cinlan.xview.service;
 public class JNIResponse {
 
 	public enum Result {
-		SUCCESS(0), FAILED(1), CONNECT_ERROR(301), SERVER_REJECT(300), UNKNOWN(-1), TIME_OUT(-2), INCORRECT_PAR(-3);
+		SUCCESS(0), FAILED(1), CONNECT_ERROR(301), SERVER_REJECT(300), UNKNOWN(-1), TIME_OUT(-2), INCORRECT_PAR(-3), ENTER_CONF_TIME_OUT(-4);
 
 		private int val;
 		private Result(int i) {
@@ -34,6 +34,8 @@ public class JNIResponse {
 				return TIME_OUT;
 			case -3:
 				return INCORRECT_PAR;
+			case -4:
+				return ENTER_CONF_TIME_OUT;
 			default:
 				return UNKNOWN;
 			}
