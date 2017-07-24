@@ -91,6 +91,11 @@ public abstract class BaseCommunicateFragment extends Fragment {
     private SurfaceView mToAmplifySurfaceView;
 
 
+    /**
+     * 记录当前摄像头是前置摄像头还是后置摄像头
+     */
+    private int mCameraToward;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = getContentView(inflater, container);
@@ -135,7 +140,11 @@ public abstract class BaseCommunicateFragment extends Fragment {
         initLocalSupport();
 
         // 摄像头朝向
-        int camera = SPUtil.getConfigIntValue(getActivity(), "camera", 0);
+
+        // 摄像头朝向
+        // modified by wad for arm-platform and android os,
+        // not have camera output 2017-5-26
+        mCameraToward = devInfo.deviceList.size() >= 2 ? 0 : 1;//SPUtil.getConfigIntValue(getActivity(), "camera", 0);
         // 码率
         int malv = SPUtil.getConfigIntValue(getActivity(), "ml", 70 * 1024);
         // 帧率
@@ -171,7 +180,7 @@ public abstract class BaseCommunicateFragment extends Fragment {
             config.videoBitRate = malv;
             config.videoFrameRate = zelv;
             config.videoMaxKeyframeInterval = zelv * 2;
-            config.enabeleFrontCam = camera == 0;
+            config.enabeleFrontCam = mCameraToward == 0;
             LocaSurfaceView.getInstance().setVideoConfig(config);
 
             //TODO:保存这个值干啥的?

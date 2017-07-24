@@ -1,19 +1,17 @@
 package net.ossrs.yasea;
 
-import android.content.res.Configuration;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
-import android.util.Log;
+import android.os.Environment;
+
+import com.cinlan.xview.utils.XviewLog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import com.cinlan.xview.utils.XviewLog;
 
 /**
  * Created by Leo Ma on 4/1/2016.

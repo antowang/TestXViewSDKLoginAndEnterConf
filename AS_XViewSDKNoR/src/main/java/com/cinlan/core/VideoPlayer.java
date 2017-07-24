@@ -6,31 +6,33 @@ import java.io.FileOutputStream;
 
 public class VideoPlayer {
 
-	private VideoHelper mVideoHelper;
+    private VideoHelper mVideoHelper;
 
-	private FileOutputStream file;
+    private FileOutputStream file;
 
-	public void setVideoHeler(VideoHelper videoHeler) {
-		mVideoHelper = videoHeler;
-	}
+    public void setVideoHeler(VideoHelper videoHeler) {
+        mVideoHelper = videoHeler;
+    }
 
-	/*
-	 * Called by native
-	 */
-	private void OnPlayVideo(byte[] data, int width, int height, int frameType) {
-		if (mVideoHelper != null)
-			mVideoHelper.playVideo(data, width, height, frameType);
+    /*
+     * Called by native
+     */
+    private void OnPlayVideo(byte[] data, int width, int height, int frameType) {
+        if (mVideoHelper != null)
 
-		try {
-			if (file == null) {
-				file = new FileOutputStream("/mnt/sdcard/video.h264");
-			}
+            mVideoHelper.playVideo(data, width, height, frameType);
 
-			if (file != null) {
-				file.write(data);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            if (file == null) {
+                file = new FileOutputStream("/mnt/sdcard/video.h264");
+            }
+
+            if (file != null) {
+
+                file.write(data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

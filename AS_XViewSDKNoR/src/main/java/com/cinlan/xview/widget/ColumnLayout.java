@@ -12,7 +12,6 @@ import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 
 import com.cinlan.xview.PublicInfo;
-import com.cinlan.xview.ui.ConfActivity;
 import com.cinlan.xview.utils.SPUtil;
 
 @SuppressLint("WrongCall")

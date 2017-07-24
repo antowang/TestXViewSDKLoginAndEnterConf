@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.cinlan.jni.ChatRequest;
 import com.cinlan.jni.ChatRequestCallbackAdapter;
@@ -50,6 +51,7 @@ import com.cinlan.xview.msg.MsgType;
 import com.cinlan.xview.msg.PageListType;
 import com.cinlan.xview.msg.PermissType;
 import com.cinlan.xview.ui.p2p.view.CommunicateFragment;
+import com.cinlan.xview.ui.p2p.view.MultiActivity;
 import com.cinlan.xview.ui.p2p.view.PToPActivity;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.XmlParserUtils;
@@ -130,30 +132,33 @@ public class JNIService extends Service {
 
 
                 case MEMBER_EXIT:
-                    XviewLog.i(XTAG, " MEMBER_EXIT msg");
+
                     MemberExit exit = (MemberExit) msg.obj;
-                    long getnUserID = exit.getnUserID();
-                    XviewLog.i(XTAG, " MEMBER_EXIT userid=" + getnUserID);
-                    User findUser = GlobalHolder.getInstance().findUser(getnUserID);
-                    XviewLog.i(XTAG, " MEMBER_EXIT findUser");
-                    GlobalHolder.getInstance().mUers.remove(new User(getnUserID));
-                    XviewLog.i(XTAG, " MEMBER_EXIT findUser");
+                    long userId = exit.getnUserID();
+                    XviewLog.i(XTAG, " MEMBER_EXIT userid=" + userId);
+                  //  User findUser = GlobalHolder.getInstance().findUser(getnUserID);
+                    //XviewLog.i(XTAG, " MEMBER_EXIT findUser");
+
+
+                   // GlobalHolder.getInstance().mUers.remove(new User(getnUserID));
+//                    XviewLog.i(XTAG, " MEMBER_EXIT findUser");
                     // GlobalHolder.getInstance().allUsers.remove(findUser);
                     // GlobalHolder.getInstance().removeUserAvatar(findUser);
-                    GlobalHolder.getInstance().removeDevice(getnUserID);
-                    XviewLog.i(XTAG, " MEMBER_EXIT removeDevice");
+
+                    User user = GlobalHolder.getInstance().findUser2(userId);
                     Intent exitIntent = new Intent(GET_CONFLIST);
                     exitIntent.putExtra("msgtype", MsgType.MEMBER_EXIT);
-                    exitIntent.putExtra("userid", getnUserID);
-                    if (findUser != null)
-                        exitIntent.putExtra("name", findUser.getNickName());
+                    exitIntent.putExtra("userid", userId);
+                    if (user != null)
+                        exitIntent.putExtra("name", user.getNickName());
 
                     /**
                      * 发送消息到{@link PToPActivity#onNativeCallback(com.cinlan.xview.msg.EventConfMsg)}
+                     * {@link MultiActivity#onEventCallback(com.cinlan.xview.msg.EventConfMsg)}
                      */
-                    EventBus.getDefault().post(new EventConfMsg(EventMsgType.ON_MEMBER_EXIT));
+                    EventBus.getDefault().post(new EventConfMsg(EventMsgType.ON_MEMBER_EXIT,userId));
 
-                    XviewLog.i(XTAG, " MEMBER_EXIT name=" + findUser.getNickName());
+                    XviewLog.i(XTAG, " MEMBER_EXIT name=" + user.getNickName());
                     exitIntent.putExtra("exitcode", exit.getExitcode());
                     XviewLog.i(XTAG, " MEMBER_EXIT sendBroadcast exitcode");
                     exitIntent.putExtra("email", exit.getEmail());
@@ -169,16 +174,12 @@ public class JNIService extends Service {
                     // 通过解析得到所有已经进入视频会议了，并给大仓库GlobaHolder
                     Map<Long, List<VideoDevice>> parserVideodevice = XmlParserUtils
                             .parserVideodevice(new ByteArrayInputStream(szXmlData.getBytes()));
+                    if (parserVideodevice != null && parserVideodevice.size() != 0){
+                        GlobalHolder.getInstance().addVideoDev(parserVideodevice);
+//                        GlobalHolder.getInstance().addDevice(parserVideodevice);
+                    }
 
-                    if (parserVideodevice != null && parserVideodevice.size() != 0)
-                        GlobalHolder.getInstance().addDevice(parserVideodevice);
-
-                    /**
-                     * 发送消息到{@link CommunicateFragment#onNewUserEnter(com.cinlan.xview.msg.EventConfMsg)}
-                     */
-                    EventBus.getDefault().post(new EventConfMsg(EventMsgType.ON_NEW_USER_ENTER));
-
-
+                    // 发送广播,同时上层回调
                     Intent enter2Intent = new Intent(GET_CONFLIST);
                     enter2Intent.putExtra("msgtype", MsgType.VIDEO_LIST);
                     enter2Intent.addCategory(XVIEW_JNI_CATA);
@@ -329,13 +330,24 @@ public class JNIService extends Service {
                 case LOGIN_OUT:
 
                     //TODO:这里下线通知
-//                    Intent ii = new Intent("com.cinlan.xview.broadcast.FORCE_OFFLINE");
+                    Intent ii2 = new Intent("com.cinlan.xview.broadcast.FORCE_OFFLINE");
                     Intent ii = new Intent(GET_CONFLIST);
-                    if (logoutFlag == 1)
+
+                    Log.e("sivin", "handleMessage: "+logoutFlag );
+
+                    if (logoutFlag == 1){
                         ii.putExtra("msgtype", MsgType.LOGOUT_OTHER);
-                    else if (logoutFlag == 2)
+                        ii2.putExtra("msgtype", MsgType.LOGOUT_OTHER);
+                    }
+
+                    else if (logoutFlag == 2){
+                        Log.e("sivin", "handleMessage: "+MsgType.LOGOUT_SELF);
                         ii.putExtra("msgtype", MsgType.LOGOUT_SELF);
+                        ii2.putExtra("msgtype", MsgType.LOGOUT_SELF);
+                    }
+
                     lbm.sendBroadcast(ii);
+                    lbm.sendBroadcast(ii2);
                     XviewLog.i(XTAG, "LOGIN_OUT  sendBroadcast success");
                     break;
                 case DISCONNECTED:
@@ -390,7 +402,6 @@ public class JNIService extends Service {
 
         }
 
-        ;
     };
     static JNIService js = null;
 
@@ -521,6 +532,7 @@ public class JNIService extends Service {
                     long time = nTime;
                     String strTime = String.valueOf(time);
                     if (strTime.length() == 10) {
+                        //这个是服务器发送的错误
                         strTime = strTime + "000";
                     }
                     time = Long.parseLong(strTime);
@@ -562,7 +574,6 @@ public class JNIService extends Service {
         @Override
         public void OnGetConfList(String szConfListXml) {
             super.OnGetConfList(szConfListXml);
-
             List<Conf> conflist = XmlParserUtils
                     .parserConfList_server(new ByteArrayInputStream(
                             szConfListXml.getBytes()));
@@ -586,21 +597,21 @@ public class JNIService extends Service {
                                               String szUserInfos) {
             super.OnConfMemberEnterCallback(nConfID, nTime, szUserInfos);
 
-            User enterConfMem = XmlParserUtils
-                    .parserEnterConfMem(new ByteArrayInputStream(szUserInfos
-                            .getBytes()));
+            User user = XmlParserUtils.parserEnterConfMem(new ByteArrayInputStream(szUserInfos.getBytes()));
 
-            if (enterConfMem != null) {
-                GlobalHolder.EnterMemberUserId = enterConfMem.getmUserId();
-                GlobalHolder.EnterMemberUserNickName = enterConfMem.getNickName();
-                GlobalHolder.EnterMemberUserData = enterConfMem.getmEmail();
+            if (user != null) {
+                GlobalHolder.EnterMemberUserId = user.getmUserId();
+                GlobalHolder.EnterMemberUserNickName = user.getNickName();
+                GlobalHolder.EnterMemberUserData = user.getmEmail();
             }
-
-
             //添加进入的成员
-            GlobalHolder.getInstance().addAttended(enterConfMem);
+            GlobalHolder.getInstance().addUser(user);
 
 
+
+
+
+            //剩下的代码是干什么的?
             MemberEnter enter = new MemberEnter();
             enter.setnConfID(nConfID);
             enter.setnTime(nTime);
@@ -608,9 +619,10 @@ public class JNIService extends Service {
             Message.obtain(mHandler, MEMBER_ENTER, enter).sendToTarget();
 
             SharedPreferences pre = getSharedPreferences("UserIdName", getApplication().MODE_PRIVATE);
+
+
             SharedPreferences.Editor editor = pre.edit();
-            editor.putString("" + enterConfMem.getmUserId(),
-                    "" + enterConfMem.getNickName());
+            editor.putString("" + user.getmUserId(), "" + user.getNickName());
             editor.commit();
         }
 
@@ -738,7 +750,7 @@ public class JNIService extends Service {
                 doc.getPages().add(page);
                 doc.setWb(true);
             } else {
-                // 锟斤拷签锟斤拷
+                //
                 if (szFileName.length() > 5) {
                     int index = szFileName.lastIndexOf("\\");
                     szFileName = szFileName.substring(index + 1);

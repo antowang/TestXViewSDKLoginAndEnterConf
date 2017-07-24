@@ -18,7 +18,6 @@ import com.cinlan.xview.utils.XviewLog;
  */
 public class VideoCaptureDevInfo {
 	private final static String TAG = "VideoCaptureDevInfo";
-
 	private final static String CAMERA_FACE_FRONT = "Camera Facing front";
 	public final static String CAMERA_FACE_BACK = "Camera Facing back";
 
@@ -175,7 +174,6 @@ public class VideoCaptureDevInfo {
 				XviewLog.d(TAG, "Failed to create VideoCaptureDevInfo.");
 			}
 		}
-
 		return s_self;
 	}
 
@@ -239,6 +237,7 @@ public class VideoCaptureDevInfo {
 				camNums = Camera.getNumberOfCameras();
 			}
 			for (int i = 0; i < camNums; ++i) {
+
 				VideoCaptureDevice newDevice = new VideoCaptureDevice();
 				// Set first camera
 				if (this.mDefaultDevName == null
@@ -247,6 +246,7 @@ public class VideoCaptureDevInfo {
 				}
 
 				Camera.CameraInfo info = new Camera.CameraInfo();
+
 				Camera.getCameraInfo(i, info);
 				// 摄像头索引
 				newDevice.index = i;

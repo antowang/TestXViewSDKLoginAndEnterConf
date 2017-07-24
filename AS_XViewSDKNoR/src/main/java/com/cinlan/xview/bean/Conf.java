@@ -3,11 +3,7 @@ package com.cinlan.xview.bean;
 import java.io.Serializable;
 
 public class Conf implements Serializable{
-	
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private String chairnickname;
 	private long chairuserid;

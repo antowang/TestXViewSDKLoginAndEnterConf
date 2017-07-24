@@ -33,16 +33,12 @@ import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.XviewLog;
 
 /**
- * �û�ʵ��
- * 
+ * 一个用户
  * @author tieziqiang
- * 
  */
 public class User implements Comparable<User>, Serializable {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1385835674152889211L;
 
 	public enum DeviceType {
@@ -166,7 +162,7 @@ public class User implements Comparable<User>, Serializable {
 
 	// This value indicate this object is dirty, construct locally without any
 	// user information
-	private boolean isDirty;// ���û��Ƿ���Ϣȫ��
+	private boolean isDirty;//
 
 	public String name_pinyin;
 
@@ -183,7 +179,7 @@ public class User implements Comparable<User>, Serializable {
 
 	public User(long mUserId) {
 		this(mUserId, null, null, null);
-		isDirty = true; // ���û���Ϣ��ȫ�� only have a id
+		isDirty = true; //
 	}
 
 	public User(long mUserId, String name) {

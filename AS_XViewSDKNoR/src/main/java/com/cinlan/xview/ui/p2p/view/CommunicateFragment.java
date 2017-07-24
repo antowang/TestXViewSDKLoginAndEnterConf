@@ -9,15 +9,17 @@ import android.widget.RelativeLayout;
 
 import com.cinlan.core.RemotePlayerManger;
 import com.cinlan.jni.VideoRequest;
+import com.cinlan.xview.bean.ClientDev;
 import com.cinlan.xview.bean.Conf;
-import com.cinlan.xview.bean.User;
+import com.cinlan.xview.bean.SurfaceWrap;
 import com.cinlan.xview.bean.UserDevice;
 import com.cinlan.xview.bean.VideoDevice;
-import com.cinlan.xview.msg.EventConfMsg;
+import com.cinlan.xview.msg.ClientEnterMsg;
 import com.cinlan.xview.msg.EventMsgType;
 import com.cinlan.xview.msg.MediaEntity;
 import com.cinlan.xview.ui.callback.VideoOpenListener;
-import com.cinlan.xview.ui.p2p.base.BaseCommunicateFragment2;
+import com.cinlan.xview.ui.callback.VdOperatorResultCallback;
+import com.cinlan.xview.ui.p2p.base.BaseConfFragment;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.VideoHelper;
 import com.cinlankeji.khb.iphone.R;
@@ -25,38 +27,37 @@ import com.cinlankeji.khb.iphone.R;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import static com.cinlan.xview.ui.callback.VdOperatorResultCallback.OPERATOR_OK;
 
 /**
- * 视频通话,聊天界面
+ * 视频通话,单聊fragment
  * Created by Sivin on 2017/5/11.
  */
 
-public class CommunicateFragment extends BaseCommunicateFragment2 implements VideoOpenListener {
-
-    private static final String TAG = "CommunicateFragment";
-
-    private Map<String, SurfaceView> mSurfaceViewList = new HashMap<>();
-
+public class CommunicateFragment extends BaseConfFragment implements VideoOpenListener {
 
     /**
-     * 本地的用户Id;
+     * 管理已经打开的surfaceView
      */
-    private long mLocalUserId;
+    protected LinkedList<SurfaceWrap> mOpenedSurfaceList = new LinkedList<>();
 
+
+    protected VdOperatorResultCallback mOperatorCallBack;
 
     /**
      * 用户视频信息设备
      */
-    private List<UserDevice> mUserDeviceList;
+    protected List<UserDevice> mUserDeviceList;
+
+    protected SurfaceWrap mWantToRmSf;
+
+    protected SurfaceWrap mWantToShowSf;
 
 
-    /**
-     * 记录已经有远端设备全屏了,新来的不用全屏了
-     */
-    private boolean mNoRemoteDevFull = true;
+
 
 
 
@@ -83,139 +84,144 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
          * 成功之后,就可以根据eventBus回调触发事件了
          */
         mUserDeviceList = GlobalHolder.getInstance().getUserDevice();
-        tryToOpenHaveEnterMemberDev();
+        initScreenLayout();
     }
 
-    private void tryToOpenHaveEnterMemberDev() {
-        if (mUserDeviceList != null && mUserDeviceList.size() != 0) {
-            for (UserDevice ud : mUserDeviceList) {
-                openVideo(ud);
+    private void initScreenLayout() {
+        if (GlobalHolder.mClientDevList != null && GlobalHolder.mClientDevList.size() != 0) {
+            for (ClientDev dev : GlobalHolder.mClientDevList) {
+                openVideo(dev.getUser().getmUserId(), dev, -1, true);
             }
         }
     }
 
-
     /**
      * 当有新的用户进入会议时,底层回调给,eventBus转发
-     * {@link }
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onNewUserEnter(EventConfMsg eventMsg) {
-
-        switch (eventMsg.getMsgType()) {
-
+    public void onNewUserEnter(ClientEnterMsg ClientEnterMsg) {
+        switch (ClientEnterMsg.getMsgType()) {
             case EventMsgType.ON_NEW_USER_ENTER:
-               /*
-                * 当有新的用户加入会议,其实用户的设备信息可以直接传递过来
-                * 但是考虑性能,决定从资源缓冲池中去取.将每一个刚来的用户
-                * 都放到集合的最后一个
-                */
-                mUserDeviceList = GlobalHolder.getInstance().getUserDevice();
-
-                Log.e(TAG, "onNewUserEnter: ");
-
-                UserDevice ud = mUserDeviceList.get(mUserDeviceList.size() - 1);
-                openVideo(ud);
-                break;
+                ClientDev dev;
+                dev = ClientEnterMsg.getmDev();
+                if (dev != null) {
+                    openVideo(dev.getUser().getmUserId(), dev, -1, false);
+                }
         }
     }
-
-
-    @Override
-    public void closeVideo(UserDevice userDevice) {
-
-        //区分关闭的是远端视频还是本地视频
-
-
-        // 获取视频设备
-        VideoDevice device = userDevice.getDevice();
-
-        // 获取用户
-        User user = userDevice.getUser();
-        if (device == null || user == null)
-            return;
-
-        // 判断打开的是自己还是远程
-        boolean isLocal = user.getmUserId() == GlobalHolder.getInstance().getLocalUserId();
-
-        //如果本地关闭
-
-//        if()
-
-
-
-
-
-
-
-
-    }
-
-
-
 
     /**
      * 打开视频设备,调用这个方法的地方一共有两个地方,
      * 1:父类打开本地视频设备, 2:当有远程设备接入的时候由eventBus回调
-     *
-     * @param userDevice userDevice
      */
-    @Override
-    public void openVideo(UserDevice userDevice) {
-        if (userDevice == null)
-            return;
+    public void openVideo(long userId, ClientDev clientDev, int pos, boolean init) {
 
-        // 获取视频设备
-        VideoDevice device = userDevice.getDevice();
+        //判断是否是预览视频
+        boolean isLocal = userId == mLocalUserId;
 
-        // 获取用户
-        User user = userDevice.getUser();
-        if (device == null || user == null)
-            return;
+        if (isLocal && mLocalHasOpen) return;
 
-        // 判断打开的是自己还是远程
-        boolean isLocal = user.getmUserId() == GlobalHolder.getInstance().getLocalUserId();
+        if (!clientDev.isCanOpen()) return;
 
+        VideoDevice vd;
 
-        if (isLocal && mLocalHasOpen) {  //集合中存放了本地视频设备,此处判断,避免重复打开
-            return;
+        if (pos == -1) {
+            vd = clientDev.getFirstEnableDev();
+        } else {
+            vd = clientDev.getVideoDevLists().get(pos);
+        }
+        if (vd == null) return;
+        vd.setOpen(true);
+
+        if(mOperatorCallBack != null){
+            mOperatorCallBack.operatorCallback(OPERATOR_OK);
         }
 
-
-        // 它会实例化本地或远端的SurfaceView
-        VideoHelper videoHelper = new VideoHelper(getActivity(), device.getId(), isLocal);
-
-        // 拿到SurfaceView
+        //它会实例化本地或远端的SurfaceView
+        VideoHelper videoHelper = new VideoHelper(getActivity(), vd.getId(), isLocal);
+        videoHelper.setUserid(userId);
         SurfaceView surfaceView = videoHelper.getView();
-        videoHelper.setUserid(user.getmUserId());
 
-        /*
-         * 判断打开的是本地摄像头视频还是其他路视频.
-         */
-        if (isLocal) {
-
-            // 预览本地视频,如果只有本地一个视频就全屏显示
-            Log.e(TAG, "openVideo: " + mUserDeviceList.size());
-            previewLocalVideo(surfaceView, mUserDeviceList.size() == 1);
-
-            mSurfaceViewList.put(user.getmUserId() + "", surfaceView);
+        int num = calcScreenNum(init);
+        if (num < 3) {
+            binaryLayout(videoHelper, surfaceView, userId, vd.getId(), num, isLocal);
         } else {
-
-            if (mSurfaceViewList.get(user.getmUserId() + "") != null) {
-                return;
+            mWantToShowSf = new SurfaceWrap(surfaceView,vd.getId());
+            if (isLocal) {
+                addCallbackForLocalSurface(surfaceView);
+            } else {
+                addCallbackForOtherSurface(surfaceView, userId, videoHelper);
             }
-            //当打开远端新的视频设备的时候,默认是第一个远端视频设备全屏显示
-            //剩下的都是小视频显示
-            addCallbackForOtherSurface(surfaceView, user.getmUserId(), videoHelper);
-
-
-            setRemoteSurface(surfaceView, mNoRemoteDevFull);
-            mNoRemoteDevFull = false;
-            //TODO:以后要用到
-            mSurfaceViewList.put(user.getmUserId() + "", surfaceView);
         }
     }
 
+
+    /**
+     * 计算分屏数
+     *
+     * @return 分屏数
+     */
+    public int calcScreenNum(boolean init) {
+        return init ? GlobalHolder.getCanOpenClientNum()
+                : mOpenedSurfaceList.size() + 1;
+    }
+
+
+    /**
+     * 当人数少于3个人的时候 布局显示
+     *
+     * @param helper      helper
+     * @param surfaceView surfaceView
+     * @param userId      userId
+     * @param isLocal     isLocal
+     */
+    private void binaryLayout(VideoHelper helper, SurfaceView surfaceView,
+                              long userId, String vdId, int screenNum,
+                              boolean isLocal) {
+        //判断打开的是本地摄像头视频还是其他路视频.
+        if (isLocal) {
+            mLocalHasOpen = true;
+            if (isVdHaveOpened(vdId)) return;
+            previewLocalVideo(surfaceView, screenNum == 1);  // 预览本地视频,如果只有本地一个视频就全屏显示
+            addOpenedSvf(vdId,surfaceView);
+        } else {
+            if (isVdHaveOpened(vdId)) return;
+            addCallbackForOtherSurface(surfaceView, userId, helper);
+            setRemoteSurface(surfaceView, true);
+            addOpenedSvf(vdId,surfaceView);
+        }
+    }
+
+
+    @Override
+    public void closeVideo(long userId, VideoDevice vd,boolean isExit) {
+        boolean isLocal = userId == GlobalHolder.getInstance().getLocalUserId();
+        vd.setOpen(false);
+
+        if(!isExit && mOperatorCallBack != null){
+            mOperatorCallBack.operatorCallback(OPERATOR_OK);
+        }
+
+        VideoHelper videoHelper = new VideoHelper(getActivity(), vd.getId(), isLocal);
+        mWantToRmSf =new SurfaceWrap(videoHelper.getView(),vd.getId()) ;
+        videoHelper.setUserid(userId);
+        if (isLocal) {
+            mLocalHasOpen = false;
+            VideoRequest.getInstance().closeVideoDevice(mConfId,
+                    videoHelper.getUserid(), "", null, 1);
+        } else {
+
+
+            VideoRequest.getInstance().closeVideoDevice(mConfId,
+                    videoHelper.getUserid(), videoHelper.getSzDevid(),
+                    videoHelper.getVideoPlayer(), 1);
+        }
+
+        if (mOpenedSurfaceList.size() < 3) {
+            rmSfFromLayout(vd.getId(), mWantToRmSf, mOpenedSurfaceList.size());
+        }
+
+    }
 
 
     @Override
@@ -237,6 +243,8 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
     private void addCallbackForOtherSurface(SurfaceView surfaceView,
                                             final long userId,
                                             final VideoHelper videoHelper) {
+
+        Log.e("sivin", "addCallbackForOtherSurface: " + surfaceView);
 
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
 
@@ -262,6 +270,7 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format,
                                        int width, int height) {
+
                 holder.setFixedSize(width, height);
             }
         });
@@ -271,11 +280,41 @@ public class CommunicateFragment extends BaseCommunicateFragment2 implements Vid
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        for (String key: mSurfaceViewList.keySet()) {
-            mSurfaceViewList.get(key).getHolder();
-        }
-        mSurfaceViewList.clear();
+        mOpenedSurfaceList.clear();
         RemotePlayerManger.getInstance().removeAllRemoteSurfaceView();
+    }
+
+
+    @Override
+    protected void removeOpenedVd(String vdId, SurfaceView surfaceView) {
+        for (int i = 0; i < mOpenedSurfaceList.size(); i++) {
+            if (mOpenedSurfaceList.get(i).getVideoId().equals(vdId)) {
+                mOpenedSurfaceList.remove(i);
+            }
+        }
+    }
+
+    /**
+     * 判断这个设备是否已经打开
+     *
+     * @param vdId vdId
+     * @return true 存在, false 不存在
+     */
+    public boolean isVdHaveOpened(String vdId) {
+        for (SurfaceWrap surface : mOpenedSurfaceList) {
+            if (surface.getVideoId().equals(vdId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 添加已经打开的设备
+     * @param vdId vdId
+     * @param sfv sfv
+     */
+    public void addOpenedSvf(String vdId, SurfaceView sfv) {
+        mOpenedSurfaceList.add(new SurfaceWrap(sfv, vdId));
     }
 }

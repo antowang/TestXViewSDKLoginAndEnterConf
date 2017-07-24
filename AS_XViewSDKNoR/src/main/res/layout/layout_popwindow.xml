@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:gravity="right"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_marginRight="8dp"
+            android:textColor="@color/actionsheet_blue_xviewsdk"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:text="完成"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+    <ExpandableListView
+        android:divider="#808080"
+        android:groupIndicator="@null"
+        android:id="@+id/ex_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

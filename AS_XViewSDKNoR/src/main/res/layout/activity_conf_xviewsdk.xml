@@ -63,7 +63,7 @@
             android:paddingLeft="20dp">
 
             <ImageView
-                android:id="@+id/iv_conf_micro_xviewsdk"
+                android:id="@+id/id_conf_micro"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="2dp"

@@ -2,14 +2,22 @@ package com.cinlan.core;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.hardware.Camera;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import net.ossrs.yasea.SrsEncoder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,6 +27,7 @@ import javax.microedition.khronos.opengles.GL10;
 import com.cinlan.xview.utils.SPUtil;
 import com.cinlan.xview.utils.XviewLog;
 
+import project.android.imageprocessing.filter.processing.VideoResizeFilter;
 import project.android.imageprocessing.FastImageProcessingPipeline;
 import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.beauty.YUHighPassSkinSmoothingFilter;
@@ -37,6 +46,7 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 	private FastImageProcessingView mfastImageProcessingView = null;
 	private FastImageProcessingPipeline mPipeline = null;
 	private ScreenEndpoint mScreen = null;
+	private VideoResizeFilter mResizer = null;
 	private CameraPreviewInput mPreviewInput = null;
 
 	private boolean bPreview = false;
@@ -46,8 +56,6 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 	private boolean bAllocatebuf = false;
 
 	private final ConcurrentLinkedQueue<IntBuffer> mGLIntBufferCache = new ConcurrentLinkedQueue<IntBuffer>();
-	private int starX = 0;
-	private int startY = 0;
 	private int mOutWidth = 0;
 	private int mOutHeight = 0;
 	private int mCount = 10;
@@ -93,9 +101,21 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 		 *  新做法<br>
 		 *  或者不这么改,还像原来那样由外边传进来也行,只要值ok就行.
 		 */
-	    mActivityDirector = SPUtil.getConfigIntValue(context, "viewModePosition", 1) == 1 
-	    		? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT 
-	    				: ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		String model= android.os.Build.MODEL;
+		String carrier= android.os.Build.MANUFACTURER;
+		String devName = carrier+ model;
+		if (devName.equals("rockchipTVBOX") ||
+				devName.equals("HisiliconHi3798MV100")){
+
+			mActivityDirector = SPUtil.getConfigIntValue(context, "viewModePosition", 0) == 1
+					? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+					: ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+
+		}else {
+			mActivityDirector = SPUtil.getConfigIntValue(context, "viewModePosition", 1) == 1
+					? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+					: ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		}
 
 		if (mfastImageProcessingView == null) {
 			mfastImageProcessingView = new FastImageProcessingView(
@@ -108,14 +128,14 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 	                @Override
 	                public void onSurfaceCreated(){
 	                    Log.e("mPipeline", "onSurfaceCreated---------");
-	                    CreateLocalSurfaceView();
+	                    CreateLocalSurfaceView(mConfig.videoWidth, mConfig.videoHeight);//added by wad for encode any resolution stream, not be condition by capture
 	                }
 	                @Override
 	                public void onSurfaceChanged(GL10 unused, int width, int height){
 	                    Log.e("mPipeline", "onSurfaceChanged---------");
 
 	                    if (!bcreate) {
-	                        CreateLocalSurfaceView();
+	                        CreateLocalSurfaceView(mConfig.videoWidth, mConfig.videoHeight);//added by wad for encode any resolution stream, not be condition by capture
 
 	                    }
 	                    mScreen.UpdateSize(width, height);
@@ -135,16 +155,25 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 		return mfastImageProcessingView;
 	}
 
-	public void CreateLocalSurfaceView() {
+	public void CreateLocalSurfaceView(int outWidth, int outHeight) {
 		// 初始化surfaceview
 		if (bcreate)
 			return;
+
+		mOutWidth = outWidth;
+		mOutHeight = outHeight;
 		bcreate = true;
 		mPreviewInput = new CameraPreviewInput(mfastImageProcessingView);
 		mPreviewInput.setActivityOrientation(mActivityDirector);
 		mScreen = new ScreenEndpoint(mPipeline);
         mScreen.setMode(scale_mode);
 		mPreviewInput.addTarget(mScreen);
+		//added by wad for encode any resolution stream, not be condition by capture
+		//add a resizer filter between capture and encoder
+		Point targetSize = new Point(mOutWidth, mOutHeight);
+		mResizer = new VideoResizeFilter(targetSize);
+		mResizer.InitResources();
+		mPreviewInput.addTarget(mResizer);
 
 		mPipeline.addRootRenderer(mPreviewInput);
 		mPreviewInput.setCameraCbObj(new CameraPreviewInput.CameraSizeCb() {
@@ -170,31 +199,38 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 		mPipeline.startRendering();
 	}
 
+	private void FreeBuffer()
+	{
+		for (int i = 0; i < mCount; i++) {
+			mArrayGLFboBuffer[i] = null;
+		}
+		mArrayGLFboBuffer = null;
+		mGlPreviewBuffer = null;
+		mGLIntBufferCache.clear();
+		bAllocatebuf = false;
+	}
+
 	private void AllocateBuffer() {
-		if (mPreviewInput == null)
-			return;
-		Camera.Size size = mPreviewInput.getClsSize();
-		if (size == null)
-			return;
-		mOutWidth = mPreviewInput.getmOutWidth();
-		mOutHeight = mPreviewInput.getmOutHeight();
 		mArrayGLFboBuffer = new IntBuffer[mCount];
 		for (int i = 0; i < mCount; i++) {
 			mArrayGLFboBuffer[i] = IntBuffer.allocate(mOutWidth * mOutHeight);
 		}
-		if (mPreviewInput.getmPreviewRotation() == 90) {
-			starX = (size.height - mOutWidth) / 2;
-			startY = (size.width - mOutHeight) / 2;
-		} else {
-			starX = (size.width - mOutWidth) / 2;
-			startY = (size.height - mOutHeight) / 2;
-		}
+
 		mGlPreviewBuffer = ByteBuffer.allocate(mOutWidth * mOutHeight * 4);
 		bAllocatebuf = true;
 	}
 
 	public void setBmEncode(boolean bmEncode) {
 		this.mIsEncoding = bmEncode;
+	}
+
+	private void ResetEncoder()
+	{
+		FreeEncoder();
+		FreeBuffer();
+
+		AllocateBuffer();
+		StartEncoder();
 	}
 
 	private void StartEncoder() {
@@ -232,27 +268,22 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 			return;
 
 		bcreate = false;
-		// mIsEncoding=false;
 		mPipeline.pauseRendering();
 		mPreviewInput.StopCamera();
 
+		mResizer.ReleaseResources();
 		mPreviewInput.removeTarget(mScreen);
+		mPreviewInput.removeTarget(mResizer);
 		mPipeline.removeRootRenderer(mPreviewInput);
 
 		FreeEncoder();
 
 		mScreen = null;
+		mResizer = null;
 		mPreviewInput = null;
 		mArrayGLFboBuffer = null;
-		mGlPreviewBuffer = null;
-		// mfastImageProcessingView = null;
-		// mPipeline = null;
+		mGlPreviewBuffer = null;;
 		bAllocatebuf = false;
-		// bPreview = false;
-
-		// 否则切换分辨率后不发送数据了
-		// mIsEncoding=false;
-
 		XviewLog.e("FreeAll", "===========over===========INDEX = ");
 	}
 
@@ -313,15 +344,24 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 		return mArrayGLFboBuffer[mIndex++];
 	}
 
-	public void putIntBuffer() {
+	public void putIntBuffer(int width, int height) {
 		if (mIsEncoding) {
 			StartEncoder();
 			if (bAllocatebuf) {
 				synchronized (mGLIntBufferCache) {
+
+					if (width != mOutWidth || height != mOutHeight)
+					{
+						mOutWidth = width;
+						mOutHeight = height;
+						ResetEncoder();
+					}
 					IntBuffer mGLFboBuffer = getIntBuffer();
-					GLES20.glReadPixels(starX, startY, mOutWidth, mOutHeight,
+
+					GLES20.glReadPixels(0, 0, mOutWidth, mOutHeight,
 							GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
 							mGLFboBuffer);
+
 					if (mGLIntBufferCache.size() >= mCount) {
 						IntBuffer picture = mGLIntBufferCache.poll();
 						picture.clear();
@@ -437,8 +477,7 @@ public class LocaSurfaceView implements SurfaceHolder.Callback {
 		}
 
 		if (needReset) {
-			FreeAll();
-			CreateLocalSurfaceView();
+			mResizer.SetTargetSize(mConfig.videoWidth, mConfig.videoHeight);
 			return;
 		}
 

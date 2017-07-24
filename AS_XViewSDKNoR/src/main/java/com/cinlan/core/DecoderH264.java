@@ -16,7 +16,7 @@ import com.cinlan.xview.utils.XviewLog;
 public class DecoderH264 {
     String mMimeType="video/avc";
     String TAG="DecoderH264";
-    private MediaCodec vdecoder=null;
+    private MediaCodec vdecoder= null;
     private long mPresentTimeUs;
     public boolean isBstart() {
         return bstart;
@@ -41,6 +41,7 @@ public class DecoderH264 {
             mPresentTimeUs = System.nanoTime() / 1000;
             vdecoder = MediaCodec.createDecoderByType(mMimeType);
             MediaFormat mediaFormat = MediaFormat.createVideoFormat(mMimeType,vInputWidth, vInputHeight);
+
             vdecoder.configure(mediaFormat, surface, null, 0);
             vdecoder.setVideoScalingMode(MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             vdecoder.start();

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cinlankeji.khb.iphone"
-    android:versionCode="73"
-    android:versionName="3.2.8.1" >
+    android:versionCode="77"
+    android:versionName="3.2.8.5" >
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="23" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -34,7 +31,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
+    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.camera" />
 
     <application
@@ -75,6 +73,12 @@
             android:launchMode="singleTask"
             android:theme="@style/xviewstyle_xviewsdk"
             android:name="com.cinlan.xview.ui.p2p.view.PToPActivity">
+
+        </activity>
+        <activity
+            android:launchMode="singleTask"
+            android:theme="@style/xviewstyle_xviewsdk"
+            android:name="com.cinlan.xview.ui.p2p.view.MultiActivity">
 
         </activity>
     </application>

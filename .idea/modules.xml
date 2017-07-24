@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AS_XViewSDKNoR/AS_XViewSDKNoR.iml" filepath="$PROJECT_DIR$/AS_XViewSDKNoR/AS_XViewSDKNoR.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TestXViewSDK.iml" filepath="$PROJECT_DIR$/TestXViewSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TestXViewSDKLoginAndEnterConf.iml" filepath="$PROJECT_DIR$/TestXViewSDKLoginAndEnterConf.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

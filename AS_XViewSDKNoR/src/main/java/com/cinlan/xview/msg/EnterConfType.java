@@ -10,9 +10,6 @@ import java.io.Serializable;
  */
 public class EnterConfType implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private long nConfID;
 	private long ntime;

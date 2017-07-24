@@ -17,6 +17,8 @@ import com.cinlan.xview.agent.XViewAgent;
 
 import java.util.List;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -213,7 +215,7 @@ public class MainActivity extends Activity {
         etNickName = (EditText) findViewById(R.id.etNickName);
         etNickName.setText("游客");
         etConfPwd = (EditText) findViewById(R.id.etConfPwd);
-        etConfPwd.setText("6666");
+        etConfPwd.setText("wangandong");
         etUserId = (EditText) findViewById(R.id.etUserId);
         etUserId.setText("用户1");
         btnCommit = (Button) findViewById(R.id.btnCommit);
@@ -231,7 +233,6 @@ public class MainActivity extends Activity {
                 }
 
 
-
                 if (nickName.isEmpty()) {
                     nickName = "游客";
                 }
@@ -239,17 +240,20 @@ public class MainActivity extends Activity {
 
                 final String confPwd = etConfPwd.getText().toString().trim();
                 final String userId = etUserId.getText().toString().trim();
-
-                final long finalConfId = 514945790574L;
+//                514966593527L
+//                final long finalConfId =  514967204137L;
+                if (confId == 0)
+                    confId = 514994167795L;
+                final long finalConfId = confId;
                 final String finalNickName = nickName;
 
-               // mXViewAgent.loginXView(finalConfId, confPwd, finalNickName, userId);
+                // mXViewAgent.loginXView(finalConfId, confPwd, finalNickName, userId);
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
 
-                        mXViewAgent.loginXView(mContext,finalConfId, confPwd, finalNickName, userId, ConfType.SINGLE);
+                        mXViewAgent.loginXView(mContext, finalConfId, confPwd, finalNickName, userId, ConfType.MULTI);
 
                     }
                 }).start();
@@ -267,8 +271,8 @@ public class MainActivity extends Activity {
 
         etSubject.setText("测试会议1"); // 会议主题
         etOrgId.setText("318"); // 组织id
-        etChairPwd.setText("8888"); // 主席密码
-        etNormalPwd.setText("6666"); // 普通密码
+        etChairPwd.setText("dongdong"); // 主席密码
+        etNormalPwd.setText("wangandong"); // 普通密码
         etStartTime.setText("0"); // 开始时间
         etEndTime.setText("0"); // 结束时间,0代表永久会议
         etMaxMember.setText("10000"); // 最大会议人数
@@ -287,12 +291,11 @@ public class MainActivity extends Activity {
                 nEndTime = Long.parseLong(etEndTime.getText().toString().trim());
                 nMaxParticipant = Integer.parseInt(etMaxMember.getText().toString().trim());
 
-                mXViewAgent.createConf(mContext,sSubject, nOrgID, sChairPasswd,
+                mXViewAgent.createConf(mContext, sSubject, nOrgID, sChairPasswd,
                         sParticipantPasswd, nStartTime, nEndTime,
                         nMaxParticipant);
             }
         });
-
 
 
         etDestroyConfId = (EditText) findViewById(R.id.etDestroyConfId);
@@ -305,25 +308,33 @@ public class MainActivity extends Activity {
                 if (s.isEmpty())
                     return;
                 long confId = Long.parseLong(s);
-                mXViewAgent.destroyConf(mContext,confId);
+                mXViewAgent.destroyConf(mContext, confId);
             }
         });
 
         etServerIP = (EditText) findViewById(R.id.etServerIP2);
         etServerPort = (EditText) findViewById(R.id.etServerPort2);
 
-        etServerIP.setText("113.31.89.39");
-        etServerPort.setText("8888");
+
+        String ip = etServerIP.getText().toString().trim();
+        String port = etServerPort.getText().toString().trim();
+        if (ip.equals(""))
+            ip = "192.168.4.99";
+        if (port.equals("")) {
+            port = "18181";
+        }
+
 
         btnSetServer = (Button) findViewById(R.id.btnSetServer2);
+        final String finalIp = ip;
+        final String finalPort = port;
         btnSetServer.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                String ip = etServerIP.getText().toString().trim();
-                String port = etServerPort.getText().toString().trim();
-                mXViewAgent.setServer(mContext,ip, port);
-                Toast.makeText(mContext, "设置服务器地址:" + ip + "\n端口:" + port,
+
+                mXViewAgent.setServer(mContext, finalIp, finalPort);
+                Toast.makeText(mContext, "设置服务器地址:" + finalIp + "\n端口:" + finalPort,
                         Toast.LENGTH_LONG).show();
             }
         });

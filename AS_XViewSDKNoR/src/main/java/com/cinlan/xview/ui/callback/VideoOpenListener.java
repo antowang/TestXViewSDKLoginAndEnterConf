@@ -1,6 +1,8 @@
 package com.cinlan.xview.ui.callback;
 
+import com.cinlan.xview.bean.ClientDev;
 import com.cinlan.xview.bean.UserDevice;
+import com.cinlan.xview.bean.VideoDevice;
 import com.cinlan.xview.msg.MediaEntity;
 
 /**
@@ -13,16 +15,15 @@ import com.cinlan.xview.msg.MediaEntity;
 		/**
 		 * 关闭视频设备
 		 * 
-		 * @param u
+		 * @param userId
 		 */
-		void closeVideo(UserDevice u);
+		void closeVideo(long userId, VideoDevice vd , boolean isExit);
 
 		/**
 		 * 打开视频设备
 		 * 
-		 * @param u
 		 */
-		void openVideo(UserDevice u);
+		void openVideo(long userId, ClientDev clientDev ,int pos, boolean isInit);
 
 		/**
 		 * 换成前置 还是后置摄像头

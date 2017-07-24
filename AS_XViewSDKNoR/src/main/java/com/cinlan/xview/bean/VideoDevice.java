@@ -46,7 +46,21 @@ public class VideoDevice implements Serializable, Comparable<VideoDevice> {
 	private Integer selectedindex;
 	private String videotype;
 	private List<Size> sizelist = new ArrayList<Size>();
-	private int disable = 0; // ����ͷ�Ƿ��ܴ򿪹ر�
+	private int disable = 0; //
+
+	private boolean isOpen = false;
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void setOpen(boolean open) {
+		isOpen = open;
+	}
 
 	public int getDisable() {
 		return disable;

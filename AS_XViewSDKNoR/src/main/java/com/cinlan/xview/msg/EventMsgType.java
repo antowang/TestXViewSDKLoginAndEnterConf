@@ -24,6 +24,10 @@ public class EventMsgType {
      */
     public static final int ON_MEMBER_EXIT = 0x00003;
 
+    /**
+     * 设备状态更新,例如摄像头禁用开启等
+     */
+    public static final int ON_VIDEO_COME = 0x00004;
 
 
 }

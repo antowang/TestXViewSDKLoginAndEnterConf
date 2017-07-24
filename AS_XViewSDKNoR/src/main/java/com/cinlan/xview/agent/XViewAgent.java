@@ -47,7 +47,7 @@ import com.cinlan.xview.service.JNIService;
 import com.cinlan.xview.service.LoginService;
 import com.cinlan.xview.service.Registrant;
 import com.cinlan.xview.service.RequestLogInResponse;
-import com.cinlan.xview.ui.ConfActivity;
+import com.cinlan.xview.ui.p2p.view.MultiActivity;
 import com.cinlan.xview.ui.p2p.view.PToPActivity;
 import com.cinlan.xview.utils.GlobalHolder;
 import com.cinlan.xview.utils.SPUtil;
@@ -59,7 +59,7 @@ import static com.cinlan.xview.inter.IXVCallback.IXCALLBACK;
 
 public class XViewAgent {
 
-    private static String XTAG = "XViewAgent";
+    private static String TAG = "xview";
 
     private static final int LOG_IN_CALL_BACK = 10;
 
@@ -120,14 +120,8 @@ public class XViewAgent {
 
     private ForceOfflineReceiver receiver;
 
-
-    /**
-     * 用于接收所有抛给上层回调的消息
-     */
-    private BroadcastReceiver mCallbackReceiver = null;
-
-
     private VideoCaptureDevInfo devInfo;
+
     private List<VideoCaptureDevice> deviceList;
     /**
      * 指定范围的所有分辨率的集合
@@ -148,46 +142,53 @@ public class XViewAgent {
             switch (msg.what) {
                 case LOG_IN_CALL_BACK:
                     isOnLogin = false;
-                    XviewLog.i(XTAG, "" + Thread.currentThread().getId() + ", " + Thread.currentThread().getName());
+                    XviewLog.i(TAG, "" + Thread.currentThread().getId() + ", " + Thread.currentThread().getName());
                     JNIResponse rlr = (JNIResponse) msg.obj;
                     /**
                      * 登录反馈
                      */
                     if (rlr.getResult() == JNIResponse.Result.TIME_OUT) {
                         mIXViewCallback.onLoginResultListener(1);
-                        XviewLog.i(XTAG, " login TIME_OUT");
+                        XviewLog.i(TAG, " login TIME_OUT");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.FAILED) {
                         mIXViewCallback.onLoginResultListener(2);
-                        XviewLog.i(XTAG, " login FAILED");
+                        XviewLog.i(TAG, " login FAILED");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.CONNECT_ERROR) {
                         mIXViewCallback.onLoginResultListener(3);
-                        XviewLog.i(XTAG, " login CONNECT_ERROR");
+                        XviewLog.i(TAG, " login CONNECT_ERROR");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.SERVER_REJECT) {
                         mIXViewCallback.onLoginResultListener(4);
-                        XviewLog.i(XTAG, " login SERVER_REJECT");
+                        XviewLog.i(TAG, " login SERVER_REJECT");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.INCORRECT_PAR) {
                         mIXViewCallback.onLoginResultListener(10);
-                        XviewLog.i(XTAG, " login INCORRECT_PAR");
+                        XviewLog.i(TAG, " login INCORRECT_PAR");
                         ImRequest.getInstance().logout();
                     } else if (rlr.getResult() == JNIResponse.Result.UNKNOWN) {
                         mIXViewCallback.onLoginResultListener(11);
-                        XviewLog.i(XTAG, " login UNKNOWN");
+                        XviewLog.i(TAG, " login UNKNOWN");
                         ImRequest.getInstance().logout();
                     } else {
-                        XviewLog.i(XTAG, " login sucess");
+
+                        mIXViewCallback.onLoginResultListener(5);
+                        XviewLog.i(TAG, " login success");
+
                         User user = ((RequestLogInResponse) rlr).getUser();
                         user.setNickName(nickName);
+
+
+
                         GlobalHolder.getInstance().setLocalUser(user);
+
+
                         PublicInfo.isAnonymousLogin = true;
 
                         if (PublicInfo.isAnonymousLogin) {
                             PublicInfo.confListRefreshHandler = confListHandler;
                             initReceiver();
-
                             thread = new ThreadConfList();
                             new Thread(thread).start();
                         }
@@ -195,7 +196,8 @@ public class XViewAgent {
                     isOnLogin = false;
                     break;
                 case PublicInfo.FLAG_ANONYMOUS_LOGIN:
-                    XviewLog.i(XTAG, " enter Conf");
+                    //XviewLog.i(TAG, "start enter");
+                    Log.e("sivin", "EnterConf start");
                     ConfRequest.getInstance().enterConf(confId, confPwd);
                     break;
                 case PublicInfo.UNREGIStER_RECEIVER:
@@ -217,10 +219,10 @@ public class XViewAgent {
     }
 
     public static XViewAgent getInstance(Context context) {
-        XviewLog.i(XTAG, "sdk version is 3.2.8.1");
+        XviewLog.i(TAG, "sdk version is 3.2.8.5");
 
         if (context == null) {
-            XviewLog.i(XTAG, "context is null");
+            XviewLog.i(TAG, "context is null");
             throw new NullPointerException("context is null");
         }
 
@@ -256,11 +258,11 @@ public class XViewAgent {
         type = t;
 
         if (confNumber == 0) {
-            XviewLog.i(XTAG, "loginXView confNumber == 0");
+            XviewLog.i(TAG, "confNumber == 0");
             throw new NullPointerException("confRequest id is null.");
         }
         if (userData == null) {
-            XviewLog.i(XTAG, "loginXView userData == null");
+            XviewLog.i(TAG, "userData == null");
             throw new NullPointerException("userData id is null.");
         }
         this.confId = confNumber;
@@ -268,17 +270,14 @@ public class XViewAgent {
         this.nickName = name;
         this.mUserData = userData;
 
-        XviewLog.i(XTAG, "loginXView confId=" + confNumber);
-        XviewLog.i(XTAG, "loginXView confPwd=" + confPassword);
-        XviewLog.i(XTAG, "loginXView nickName=" + name);
-        XviewLog.i(XTAG, "loginXView userData=" + userData);
+        XviewLog.i(TAG, "confId=" + confNumber + "confPwd=" + confPassword + "nickName=" + name + "userData=" + userData);
 
 
         devInfo = VideoCaptureDevInfo.CreateVideoCaptureDevInfo();
         deviceList = devInfo.deviceList;
         if (deviceList.size() == 0) {
             SPUtil.putConfigIntValue(context, "local", 2);
-            XviewLog.i(XTAG, "No camera, in a state if 2.");
+            XviewLog.i(TAG, "No camera, in a state if 2.");
         }
 
 
@@ -291,6 +290,8 @@ public class XViewAgent {
 
         //启动服务器,这个服务器无法被杀死
         Intent intent = new Intent(context, JNIService.class);
+
+
         context.startService(intent);
 
         login(context);
@@ -542,7 +543,7 @@ public class XViewAgent {
         SPUtil.putConfigStrValue(context, "ip", ip);
         SPUtil.putConfigStrValue(context, "port", "18181");
 
-        XviewLog.i(XTAG, " setServer:" + WEB_SERVER_URL);
+        XviewLog.i(TAG, " setServer:" + WEB_SERVER_URL);
     }
 
     private void login(Context context) {
@@ -551,13 +552,13 @@ public class XViewAgent {
         port = SPUtil.getConfigStrValue(context, "port");
 
         if ("".equals(ip) || "".equals(port)) {
-            XviewLog.i(XTAG, " ip or port is null");
+            XviewLog.i(TAG, " ip or port is null");
             mIXViewCallback.onLoginResultListener(6);
             return;
         }
 
         if (!com.cinlan.xview.utils.Utils.checkNetworkState(context)) {
-            XviewLog.i(XTAG, " disnetwork");
+            XviewLog.i(TAG, " disnetwork");
             mIXViewCallback.onLoginResultListener(7);
             return;
         }
@@ -576,11 +577,11 @@ public class XViewAgent {
         mConfigRequest.setServerAddress(ip, Integer.parseInt(port));
         synchronized (isOnLogin) {
             if (isOnLogin) {
-                XviewLog.i(XTAG, " isOnLogin");
+                XviewLog.i(TAG, " isOnLogin");
                 return;
             }
             isOnLogin = true;
-            XviewLog.i(XTAG, " login...");
+            XviewLog.i(TAG, "start login ...");
             // 真正的登录入口
             mLoginService.login(mUserData, "", caller, 1, nickName);
         }
@@ -607,7 +608,7 @@ public class XViewAgent {
         protected void onPostExecute(String result) {
             if (result == null) {
                 // dns错误
-                XviewLog.i(XTAG, " DNS parse error");
+                XviewLog.i(TAG, " DNS parse error");
                 mIXViewCallback.onLoginResultListener(8);
                 return;
             }
@@ -632,7 +633,7 @@ public class XViewAgent {
         }
 
         if (isDns)
-            XviewLog.i(XTAG, " DNS = " + dns);
+            XviewLog.i(TAG, " DNS = " + dns);
 
         return isDns;
     }
@@ -813,13 +814,13 @@ public class XViewAgent {
                     EnterConfType entertype = (EnterConfType) obj;
                     int getnJoinResult = entertype.getnJoinResult();
                     long confid = entertype.getnConfID();
-                    XviewLog.i(XTAG, " enter confRequest result code = " + getnJoinResult);
+
                     if (getnJoinResult == 0) {
 
 
                         //TODO:进入会议回调,2代表的是什么?
                         mIXViewCallback.onEnterConfListener(2);
-
+                        XviewLog.i(TAG, " enter confRequest result code = " + getnJoinResult);
 
                         EnterConfType conftype = (EnterConfType) obj;
                         String szConfData = conftype.getSzConfData();
@@ -828,12 +829,13 @@ public class XViewAgent {
                         Conf parserOnEnterConf = XmlParserUtils
                                 .parserOnEnterConf(is);
                         //进入的会议的时候添加了自己
-                        GlobalHolder.getInstance().addSelf();
+                       // GlobalHolder.getInstance().addSelf();
+                        GlobalHolder.getInstance().initSelf();
                         GlobalHolder.getInstance().setmCurrentConf(new Conf(confid));
 
                         Intent confintent = null;
                         if (type == ConfType.MULTI) {
-                            confintent = new Intent(context, ConfActivity.class);
+                            confintent = new Intent(context, MultiActivity.class);
                         } else if (type == ConfType.SINGLE) {
                             confintent = new Intent(context, PToPActivity.class);
                         }
@@ -844,9 +846,11 @@ public class XViewAgent {
                         context.startActivity(confintent);
 
                     } else {
-                        //TODO:进入会议失败回调,3代表的是什么?
-                        mIXViewCallback.onEnterConfListener(3); // 206?
-                        XviewLog.i(XTAG, " enter confRequest result code = " + getnJoinResult);
+
+                        mIXViewCallback.onEnterConfListener(3);
+                        Log.i(TAG, " enter confRequest result code = " + getnJoinResult);
+
+
                         if (PublicInfo.isAnonymousLogin) {
                             PublicInfo.AnonymousLoginState = 1;
                         }
@@ -871,12 +875,18 @@ public class XViewAgent {
 
                 case MsgType.KICK_CONF:  //被踢出会议回调
                     mIXViewCallback.onConfMsgListener(1);
+                    Log.i(TAG, "tick conf");
                     break;
 
                 case MsgType.LOGOUT_SELF:
+
+
                     mIXViewCallback.onLogoutResultListener(1);
+                    Log.i(TAG, "self logout");
+
                     break;
                 case MsgType.LOGOUT_OTHER:
+                    Log.i(TAG, "force logout ");
                     mIXViewCallback.onLogoutResultListener(3);
                     break;
 
@@ -898,16 +908,16 @@ public class XViewAgent {
     }
 
     private void initRequest(Context context) {
-        XviewLog.i(XTAG, " initRequest");
+        XviewLog.i(TAG, " initRequest");
         try {
             System.loadLibrary("audiocore");
             System.loadLibrary("VideoCore");
             System.loadLibrary("Client");
-            XviewLog.i(XTAG + " load library secuss");
+            XviewLog.i(TAG + " load library secuss");
         } catch (UnsatisfiedLinkError ule) {
             mIXViewCallback.onLoginResultListener(9);
             System.out.println("WARNING: Could not load library!");
-            XviewLog.i(XTAG, " load library fail");
+            XviewLog.i(TAG, " load library fail");
         }
 
         NativeInitializer.getIntance(context).initialize(context);
@@ -923,79 +933,69 @@ public class XViewAgent {
         TestVideoRequest();
         TestWBRequest();
         TestAudioRequest();
-        XviewLog.i(XTAG, " initRequest sucess");
+        XviewLog.i(TAG, " initRequest sucess");
     }
 
     private void TestChatRequest() {
-        XviewLog.i(XTAG, " TestChatRequest=====start");
+        XviewLog.i(TAG, " TestChatRequest=====start");
         if (!chatRequest.initialize(chatRequest)) {
-            XviewLog.i(XTAG, " TestChatRequest=====exception");
+            XviewLog.i(TAG, " TestChatRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestChatRequest=====end");
+        XviewLog.i(TAG, " TestChatRequest=====end");
     }
 
     private void TestAudioRequest() {
-        XviewLog.i(XTAG, " TestAudioRequest=====start");
+        XviewLog.i(TAG, " TestAudioRequest=====start");
         if (!audioRequest.initialize(audioRequest)) {
-            XviewLog.i(XTAG, " TestAudioRequest=====exception");
+            XviewLog.i(TAG, " TestAudioRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestAudioRequest=====end");
+        XviewLog.i(TAG, " TestAudioRequest=====end");
     }
 
     private void TestVideoRequest() {
-        XviewLog.i(XTAG, " TestVideoRequest=====start");
+        XviewLog.i(TAG, " TestVideoRequest=====start");
         if (!videoRequest.initialize(videoRequest)) {
-            XviewLog.i(XTAG, " TestVideoRequest=====exception");
+            XviewLog.i(TAG, " TestVideoRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestVideoRequest=====end");
+        XviewLog.i(TAG, " TestVideoRequest=====end");
     }
 
     private void TestWBRequest() {
-        XviewLog.i(XTAG, " TestWBRequest=====start");
+        XviewLog.i(TAG, " TestWBRequest=====start");
         if (!wbRequest.initialize(wbRequest)) {
-            XviewLog.i(XTAG, " TestWBRequest=====exception");
+            XviewLog.i(TAG, " TestWBRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestWBRequest=====end");
+        XviewLog.i(TAG, " TestWBRequest=====end");
     }
 
     private void TestImRequest() {
-        XviewLog.i(XTAG, " TestImRequest=====start");
+        XviewLog.i(TAG, " TestImRequest=====start");
         if (!imRequest.initialize(imRequest)) {
-            XviewLog.i(XTAG, " TestImRequest=====exception");
+            XviewLog.i(TAG, " TestImRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestImRequest=====end");
+        XviewLog.i(TAG, " TestImRequest=====end");
     }
 
     private void TestConfRequest() {
-        XviewLog.i(XTAG, " TestConfRequest=====start");
+        XviewLog.i(TAG, " TestConfRequest=====start");
         if (!confRequest.initialize(confRequest)) {
-            XviewLog.i(XTAG, " TestConfRequest=====exception");
+            XviewLog.i(TAG, " TestConfRequest=====exception");
             return;
         }
-        XviewLog.i(XTAG, " TestConfRequest=====end");
+        XviewLog.i(TAG, " TestConfRequest=====end");
     }
 
     private class ThreadConfList implements Runnable {
-
         @Override
         public void run() {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             Conf conf = new Conf();
             conf.setId(confId);
-            if (conf != null)
-                confListHandler.sendEmptyMessage(PublicInfo.FLAG_ANONYMOUS_LOGIN);
+            confListHandler.sendEmptyMessage(PublicInfo.FLAG_ANONYMOUS_LOGIN);
         }
     }
-
-
 }

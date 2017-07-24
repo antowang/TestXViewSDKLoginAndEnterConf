@@ -14,6 +14,7 @@ import java.util.Set;
  */
 
 public class RemotePlayerManger {
+
     private Activity mActivity = null;
     private static RemotePlayerManger remotePlayerManger=null;
     Map<String, RemoteSurfaceView> mapView =new HashMap<String, RemoteSurfaceView>();

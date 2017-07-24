@@ -46,7 +46,7 @@ public class VideoHelper {
 			videoPlayer.setVideoHeler(this);
 
 			// 获取远端视频播放的SurfaceView
-			view = RemotePlayerManger.getInstance().getRemoteSurfaceView(ctx, szDevid,  SCALE_TO_FIT);
+			view = RemotePlayerManger.getInstance().getRemoteSurfaceView(ctx, szDevid,  SCALE_TO_FIT_WITH_CROPPING);
 		}
 	}
 
@@ -62,11 +62,8 @@ public class VideoHelper {
 		if (local) {
 			return;
 		}
-
 		RemoteSurfaceView rView = (RemoteSurfaceView) view;
-
 		if (rView != null) {
-		
 				long cur_pts = System.nanoTime() / 1000;
 				if (last_pts == 0) {
 					last_pts = cur_pts;

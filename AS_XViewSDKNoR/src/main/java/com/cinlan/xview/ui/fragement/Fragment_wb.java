@@ -82,7 +82,7 @@ public class Fragment_wb extends Fragment {
 		super.onCreate(savedInstanceState);
 		Bundle bundle = getArguments();
 		page = (Page) bundle.getSerializable("page");
-		name = (String) bundle.getString("name");
+		name =  bundle.getString("name");
 		mPaint = new Paint();
 	}
 

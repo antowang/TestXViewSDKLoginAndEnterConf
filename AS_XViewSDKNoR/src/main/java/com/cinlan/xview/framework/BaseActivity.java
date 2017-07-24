@@ -12,6 +12,7 @@ import com.cinlan.xview.widget.XViewAlertDialog;
 import com.cinlankeji.khb.iphone.R;
 
 /**
+ *
  * Created by sivin on 2017/5/20.
  */
 
@@ -19,6 +20,7 @@ public class BaseActivity extends Activity {
 
     protected Context mContext;
     private XViewAlertDialog mAlertDialog;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
